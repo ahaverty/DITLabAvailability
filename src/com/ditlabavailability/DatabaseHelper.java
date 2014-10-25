@@ -250,7 +250,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 				r.setRoom(c.getString(c.getColumnIndex(KEY_ROOM)));
 				r.setDatetime(c.getString(c.getColumnIndex(KEY_DATETIME)));
 
-				// adding to lab times list
+				// adding to lab reservations list
 				labReservations.add(r);
 			} while (c.moveToNext());
 		}
