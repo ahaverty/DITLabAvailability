@@ -1,19 +1,22 @@
-package com.ditlabavailability;
+package com.ditlabavailability.model;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Locale;
 
 public class Reserved {
 
 	String room;
 	Timestamp datetime;
 	String datetimeStr;
-
-	Calendar cal = Calendar.getInstance();
-	SimpleDateFormat dayStringFormat = new SimpleDateFormat("E");
-	SimpleDateFormat dayOfMonthFormat = new SimpleDateFormat("d");
-	SimpleDateFormat hourOfDayFormat = new SimpleDateFormat("H");
+	Locale locale = java.util.Locale.getDefault();
+	
+	
+	Calendar cal = Calendar.getInstance(locale);
+	SimpleDateFormat dayStringFormat = new SimpleDateFormat("E", locale);
+	SimpleDateFormat dayOfMonthFormat = new SimpleDateFormat("d", locale);
+	SimpleDateFormat hourOfDayFormat = new SimpleDateFormat("H", locale);
 
 	public Reserved() {
 	}

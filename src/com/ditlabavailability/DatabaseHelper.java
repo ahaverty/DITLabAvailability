@@ -6,6 +6,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
+
+import com.ditlabavailability.model.LabDetails;
+import com.ditlabavailability.model.Reserved;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -15,6 +19,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
+	
+	Locale locale = java.util.Locale.getDefault();
 
 	// Logcat tag
 	private static final String LOG = "DatabaseHelper";
@@ -87,7 +93,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	/**
 	 * Creating a lab
 	 */
-	public long createLab(Labs lab) {
+	public long createLab(LabDetails lab) {
 		SQLiteDatabase db = this.getWritableDatabase();
 
 		ContentValues values = new ContentValues();
@@ -103,7 +109,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	/**
 	 * get single lab by room name
 	 */
-	public Labs getLabByRoom(String roomName) {
+	public LabDetails getLabByRoom(String roomName) {
 		SQLiteDatabase db = this.getReadableDatabase();
 
 		String selectQuery = "SELECT  * FROM " + TABLE_LABS + " WHERE "
@@ -116,7 +122,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		if (c != null)
 			c.moveToFirst();
 
-		Labs lab = new Labs();
+		LabDetails lab = new LabDetails();
 		lab.setRoom((c.getString(c.getColumnIndex(KEY_ROOM))));
 		lab.setLocation(c.getString(c.getColumnIndex(KEY_LOCATION)));
 
@@ -126,8 +132,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	/**
 	 * getting all labs
 	 * */
-	public List<Labs> getAllLabs() {
-		List<Labs> labs = new ArrayList<Labs>();
+	public List<LabDetails> getAllLabs() {
+		List<LabDetails> labs = new ArrayList<LabDetails>();
 		String selectQuery = "SELECT  * FROM " + TABLE_LABS;
 
 		Log.e(LOG, selectQuery);
@@ -138,7 +144,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		// looping through all rows and adding to list
 		if (c.moveToFirst()) {
 			do {
-				Labs lab = new Labs();
+				LabDetails lab = new LabDetails();
 				lab.setRoom((c.getString(c.getColumnIndex(KEY_ROOM))));
 				lab.setLocation(c.getString(c.getColumnIndex(KEY_LOCATION)));
 
@@ -153,7 +159,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	/**
 	 * Updating a lab
 	 **/
-	public int updateLab(Labs lab) {
+	public int updateLab(LabDetails lab) {
 		SQLiteDatabase db = this.getWritableDatabase();
 
 		ContentValues values = new ContentValues();
@@ -219,15 +225,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	}
 
 	/**
-	 * getting all lab reservations
+	 * getting all lab reservations by date
 	 * */
-	public List<Reserved> getReservationsByDate(String dateStr) {
+	public List<Reserved> getReservationsByDate(Timestamp dateBegin) {
 		
 		Calendar cal = Calendar.getInstance();
-		DateFormat dateFormatSql = new SimpleDateFormat("y-M-d HH:mm:ss.S");
+		DateFormat dateFormatSql = new SimpleDateFormat("y-M-d HH:mm:ss.S", locale);
 		
-		Timestamp dateBegin = Timestamp.valueOf(dateStr);
-
 		cal.setTime(dateBegin);
 		cal.add(Calendar.DAY_OF_WEEK, 1);
 

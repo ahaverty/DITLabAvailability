@@ -2,8 +2,11 @@ package com.ditlabavailability;
  
 import java.util.ArrayList;
  
+
 import com.ditlabavailability.R;
  
+import com.ditlabavailability.model.LabTime;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,21 +15,21 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
  
 public class MyCustomBaseAdapter extends BaseAdapter {
-    private static ArrayList<SearchResults> searchArrayList;
+    private static ArrayList<LabTime> labArrayList;
  
     private LayoutInflater mInflater;
  
-    public MyCustomBaseAdapter(Context context, ArrayList<SearchResults> results) {
-        searchArrayList = results;
+    public MyCustomBaseAdapter(Context context, ArrayList<LabTime> results) {
+    	labArrayList = results;
         mInflater = LayoutInflater.from(context);
     }
  
     public int getCount() {
-        return searchArrayList.size();
+        return labArrayList.size();
     }
  
     public Object getItem(int position) {
-        return searchArrayList.get(position);
+        return labArrayList.get(position);
     }
  
     public long getItemId(int position) {
@@ -39,26 +42,18 @@ public class MyCustomBaseAdapter extends BaseAdapter {
             convertView = mInflater.inflate(R.layout.custom_row_view, null);
             holder = new ViewHolder();
             holder.txtName = (TextView) convertView.findViewById(R.id.name);
-            holder.txtCityState = (TextView) convertView
-                    .findViewById(R.id.cityState);
-            holder.txtPhone = (TextView) convertView.findViewById(R.id.phone);
  
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
  
-        holder.txtName.setText(searchArrayList.get(position).getName());
-        holder.txtCityState.setText(searchArrayList.get(position)
-                .getCityState());
-        holder.txtPhone.setText(searchArrayList.get(position).getPhone());
+        holder.txtName.setText(labArrayList.get(position).toString());
  
         return convertView;
     }
  
     static class ViewHolder {
         TextView txtName;
-        TextView txtCityState;
-        TextView txtPhone;
     }
 }

@@ -1,16 +1,16 @@
-package com.ditlabavailability;
+package com.ditlabavailability.model;
 
-public class Labs {
+public class LabDetails {
 	
 	int id;
 	String room;
 	String Location;
 	
 	// constructors
-	public Labs() {
+	public LabDetails() {
 	}
 	
-	public Labs(String room, String location){
+	public LabDetails(String room, String location){
 		this.room = room;
 		this.Location = location;
 	}
