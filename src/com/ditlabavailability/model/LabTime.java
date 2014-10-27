@@ -12,8 +12,9 @@ public class LabTime {
 	String location;
 	boolean availability;
 	DateTime untilTime;
-	
-	DateTimeFormatter fmt = DateTimeFormat.forPattern("YYYY-MM-DD HH:mm:ss.SSS");
+
+	DateTimeFormatter fmt = DateTimeFormat
+			.forPattern("YYYY-MM-DD HH:mm:ss.SSS");
 
 	public LabTime() {
 	}
@@ -45,17 +46,17 @@ public class LabTime {
 	public DateTime getLabtime() {
 		return labtime;
 	}
-	
+
 	public String getLabtimeStr() {
 		return fmt.print(labtime);
 	}
-	
+
 	public int getHour() {
 		return labtime.getHourOfDay();
 	}
-	
+
 	public String getHourStr() {
-		return Integer.toString(labtime.getHourOfDay());
+		return Integer.toString(labtime.getHourOfDay()) + ":00";
 	}
 
 	public String getRoom() {
@@ -78,9 +79,14 @@ public class LabTime {
 		}
 		return available;
 	}
-	
+
 	public DateTime getUntilTime() {
 		return untilTime;
+	}
+
+	public String getUntilStr() {
+		String hourStr = Integer.toString(getUntilTime().getHourOfDay());
+		return hourStr + ":00";
 	}
 
 	// setters
@@ -99,14 +105,14 @@ public class LabTime {
 	public void setAvailability(boolean availability) {
 		this.availability = availability;
 	}
-	
+
 	public void setUntilTime(DateTime untilTime) {
 		this.untilTime = untilTime;
 	}
-	
+
 	// custom methods
-	public boolean isAvailable(){
+	public boolean isAvailable() {
 		return getAvailability();
 	}
-	
+
 }

@@ -6,6 +6,7 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import com.ditlabavailability.grouper.LabGrouper;
 import com.ditlabavailability.labcreation.LabCreator;
 import com.ditlabavailability.model.LabTime;
 
@@ -33,6 +34,7 @@ public class MainActivity extends Activity {
 		DataPopulator.populate(db);
 
 		LabCreator creator = new LabCreator();
+		LabGrouper grouper = new LabGrouper();
 		
 		String testingDate = "2014-10-27 00:00:00.000";
 		DateTimeFormatter fmt = DateTimeFormat.forPattern("YYYY-MM-DD HH:mm:ss.SSS");
@@ -41,9 +43,11 @@ public class MainActivity extends Activity {
 		DateTime filteredTimestamp = DateTime.parse(testingDate, fmt);
 		ArrayList<LabTime> labTimeResults = creator.createLabInstances(db, filteredTimestamp);
 		
+		ArrayList<LabTime> labTimesGrouped = grouper.groupLabs(labTimeResults);
+		
         
         final ListView lv = (ListView) findViewById(R.id.labListView);
-        lv.setAdapter(new MyCustomBaseAdapter(this, labTimeResults));
+        lv.setAdapter(new MyCustomBaseAdapter(this, labTimesGrouped));
          
          
         lv.setOnItemClickListener(new OnItemClickListener() {
