@@ -14,7 +14,7 @@ public class LabTime {
 	DateTime untilTime;
 
 	DateTimeFormatter fmt = DateTimeFormat
-			.forPattern("YYYY-MM-DD HH:mm:ss.SSS");
+			.forPattern("YYYY-MM-dd HH:mm:ss.SSS");
 
 	public LabTime() {
 	}

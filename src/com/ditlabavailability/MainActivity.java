@@ -37,11 +37,14 @@ public class MainActivity extends Activity {
 		LabGrouper grouper = new LabGrouper();
 		
 		String testingDate = "2014-10-27 00:00:00.000";
-		DateTimeFormatter fmt = DateTimeFormat.forPattern("YYYY-MM-DD HH:mm:ss.SSS");
+		DateTimeFormatter fmt = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss.SSS");
 		
 		// TODO create filteredTimestamp using filter activity
 		DateTime filteredTimestamp = DateTime.parse(testingDate, fmt);
 		ArrayList<LabTime> labTimeResults = creator.createLabInstances(db, filteredTimestamp);
+		
+		// Closing database connection
+		db.closeDB();
 		
 		ArrayList<LabTime> labTimesGrouped = grouper.groupLabs(labTimeResults);
 		
@@ -59,7 +62,6 @@ public class MainActivity extends Activity {
             }
         });
 		
-		// Closing database connection
-		db.closeDB();
+		
 	}
 }

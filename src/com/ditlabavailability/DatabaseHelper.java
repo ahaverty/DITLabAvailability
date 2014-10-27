@@ -19,7 +19,7 @@ import android.util.Log;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-	DateTimeFormatter fmt = DateTimeFormat.forPattern("YYYY-MM-DD HH:mm:ss.SSS");
+	DateTimeFormatter fmt = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss.SSS");
 
 	// Logcat tag
 	private static final String LOG = "DatabaseHelper";
@@ -28,7 +28,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final int DATABASE_VERSION = 1;
 
 	// Database Name
-	private static final String DATABASE_NAME = "labTimes";
+	private static final String DATABASE_NAME = "labTimes.db";
 
 	// Table Names
 	private static final String TABLE_LABS = "labs";
@@ -132,7 +132,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	 * */
 	public List<LabDetails> getAllLabs() {
 		List<LabDetails> labs = new ArrayList<LabDetails>();
-		String selectQuery = "SELECT  * FROM " + TABLE_LABS;
+		String selectQuery = "SELECT * FROM " + TABLE_LABS;
 
 		Log.e(LOG, selectQuery);
 
@@ -211,7 +211,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			do {
 				Reserved r = new Reserved();
 				r.setRoom(c.getString(c.getColumnIndex(KEY_ROOM)));
-				r.setDatetime(fmt.print(c.getColumnIndex(KEY_DATETIME)));
+				r.setDatetime(c.getString(c.getColumnIndex(KEY_DATETIME)));
 
 				// adding to lab times list
 				labReservations.add(r);
@@ -229,7 +229,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		dateEnd = dateBegin.plusHours(24);
 
 		List<Reserved> labReservations = new ArrayList<Reserved>();
-		String selectQuery = "SELECT  * FROM " + TABLE_RESERVED
+		String selectQuery = "SELECT * FROM " + TABLE_RESERVED
 				+ " WHERE datetime >= Datetime('" + fmt.print(dateBegin)
 				+ "') AND datetime <= Datetime('" + fmt.print(dateEnd) + "')";
 
@@ -243,7 +243,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			do {
 				Reserved r = new Reserved();
 				r.setRoom(c.getString(c.getColumnIndex(KEY_ROOM)));
-				r.setDatetime(fmt.print(c.getColumnIndex(KEY_DATETIME)));
+				r.setDatetime(c.getString(c.getColumnIndex(KEY_DATETIME)));
 
 				// adding to lab reservations list
 				labReservations.add(r);
@@ -264,6 +264,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		// updating row
 		return db.update(TABLE_RESERVED, values, KEY_ROOM + " = ?",
 				new String[] { String.valueOf(reservation.getRoom()) });
+	}
+	
+	/**
+	 * Deleting a reservation
+	 */
+	public void deleteReservationsByRoom(String lab_room) {
+		SQLiteDatabase db = this.getWritableDatabase();
+		db.delete(TABLE_RESERVED, KEY_ROOM + " = ?",
+				new String[] { String.valueOf(lab_room) });
 	}
 
 	// closing database

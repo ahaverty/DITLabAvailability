@@ -10,7 +10,7 @@ public class Reserved {
 	DateTime datetime;
 	String datetimeStr;
 	
-	DateTimeFormatter fmt = DateTimeFormat.forPattern("YYYY-MM-DD HH:mm:ss.SSS");
+	DateTimeFormatter fmt = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss.SSS");
 
 	public Reserved() {
 	}
@@ -38,7 +38,7 @@ public class Reserved {
 	}
 
 	public DateTime getDatetime(String datetimeStr) {
-		return DateTime.parse(datetimeStr,fmt);
+		return DateTime.parse(datetimeStr, fmt);
 	}
 
 	public int getDayOfWeekInt() {

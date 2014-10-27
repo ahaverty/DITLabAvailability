@@ -17,21 +17,20 @@ public class LabGrouper {
 				tempLab = lt;
 			}
 			
-			// TODO fix loop here
+			
+			
 			// If tempLab's availability and room name matched current lab
-			if (tempLab.getAvailability() == lt.getAvailability()
-					&& tempLab.getRoom().equals(lt.getRoom()))
-			{
-				// Set tempLab's 'until' time to labTime + 1hr
-				tempLab.setUntilTime(lt.getLabtime().plusHours(1));
-			}
-			else{
-				
+			if (! (tempLab.getAvailability() == lt.getAvailability()
+					&& tempLab.getRoom().equals(lt.getRoom())))
+			{	
 				if(tempLab!=null){
 					labTimesGrouped.add(tempLab);
 				}
 				tempLab = lt;
 			}
+			
+			tempLab.setUntilTime(lt.getLabtime().plusHours(1));
+		
 		}
 		return labTimesGrouped;
 	}
