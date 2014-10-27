@@ -41,19 +41,28 @@ public class MyCustomBaseAdapter extends BaseAdapter {
         if (convertView == null) {
             convertView = mInflater.inflate(R.layout.custom_row_view, null);
             holder = new ViewHolder();
-            holder.txtName = (TextView) convertView.findViewById(R.id.name);
+            holder.labName = (TextView) convertView.findViewById(R.id.labName);
+            holder.time = (TextView) convertView.findViewById(R.id.time);
+            holder.availability = (TextView) convertView.findViewById(R.id.availability);
+            holder.location = (TextView) convertView.findViewById(R.id.location);
  
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
  
-        holder.txtName.setText(labArrayList.get(position).toString());
+        holder.labName.setText(labArrayList.get(position).getRoom());
+        holder.time.setText(labArrayList.get(position).getHourStr());
+        holder.availability.setText(labArrayList.get(position).getAvailabilityStr());
+        holder.location.setText(labArrayList.get(position).getLocation());
  
         return convertView;
     }
  
     static class ViewHolder {
-        TextView txtName;
+        TextView labName;
+        TextView time;
+        TextView availability;
+        TextView location;
     }
 }

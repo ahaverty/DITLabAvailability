@@ -9,6 +9,7 @@ public class LabTime {
 	Timestamp labtime;
 	String location;
 	boolean availability;
+	Timestamp untilTime;
 
 	public LabTime() {
 	}
@@ -30,11 +31,7 @@ public class LabTime {
 	@Override
 	public String toString() {
 		String customOutput;
-		String available = "Not Available";
-
-		if (availability) {
-			available = "Available";
-		}
+		String available = getAvailabilityStr();
 		customOutput = room + " | " + labtime.toString() + " | " + available
 				+ " | " + location;
 		return customOutput;
@@ -43,6 +40,16 @@ public class LabTime {
 	// getters
 	public Timestamp getLabtime() {
 		return labtime;
+	}
+	
+	public String getLabtimeStr() {
+		return labtime.toString();
+	}
+	
+	public String getHourStr() {
+		String labtimeStr = getLabtimeStr();
+		String hour = (String)labtimeStr.subSequence(11, 16);
+		return hour;
 	}
 
 	public String getRoom() {
@@ -55,6 +62,19 @@ public class LabTime {
 
 	public boolean getAvailability() {
 		return availability;
+	}
+
+	public String getAvailabilityStr() {
+		String available = "Not Available";
+
+		if (availability) {
+			available = "Available";
+		}
+		return available;
+	}
+	
+	public Timestamp getUntilTime() {
+		return untilTime;
 	}
 
 	// setters
@@ -73,5 +93,14 @@ public class LabTime {
 	public void setAvailability(boolean availability) {
 		this.availability = availability;
 	}
-
+	
+	public void setUntilTime(Timestamp untilTime) {
+		this.untilTime = untilTime;
+	}
+	
+	// custom methods
+	public boolean isAvailable(){
+		return getAvailability();
+	}
+	
 }

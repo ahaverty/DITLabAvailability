@@ -37,7 +37,7 @@ public class MainActivity extends Activity {
 		ArrayList<LabTime> labTimeResults = creator.createLabInstances(db, filteredTimestamp);
 		
         
-        final ListView lv = (ListView) findViewById(R.id.srListView);
+        final ListView lv = (ListView) findViewById(R.id.labListView);
         lv.setAdapter(new MyCustomBaseAdapter(this, labTimeResults));
          
          
@@ -47,7 +47,7 @@ public class MainActivity extends Activity {
                 Object o = lv.getItemAtPosition(position);
                 LabTime fullObject = (LabTime)o;
                 Toast.makeText(MainActivity.this, "You have chosen: " + " " + fullObject.getRoom(), Toast.LENGTH_LONG).show();
-            } 
+            }
         });
 		
 		// Closing database connection
