@@ -1,12 +1,12 @@
 package com.ditlabavailability;
 
-import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import com.ditlabavailability.model.LabDetails;
 import com.ditlabavailability.model.Reserved;
@@ -19,8 +19,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
-	
-	Locale locale = java.util.Locale.getDefault();
+
+	DateTimeFormatter fmt = DateTimeFormat.forPattern("YYYY-MM-DD HH:mm:ss.SSS");
 
 	// Logcat tag
 	private static final String LOG = "DatabaseHelper";
@@ -77,7 +77,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 		// create new tables
 		onCreate(db);
-
 	}
 
 	/**
@@ -213,9 +212,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			do {
 				Reserved r = new Reserved();
 				r.setRoom(c.getString(c.getColumnIndex(KEY_ROOM)));
-				// TODO below may not work since return will be a date
-				// may have to parse as a string
-				r.setDatetime(c.getString(c.getColumnIndex(KEY_DATETIME)));
+				r.setDatetime(fmt.print(c.getColumnIndex(KEY_DATETIME)));
 
 				// adding to lab times list
 				labReservations.add(r);
@@ -227,20 +224,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	/**
 	 * getting all lab reservations by date
 	 * */
-	public List<Reserved> getReservationsByDate(Timestamp dateBegin) {
-		
-		Calendar cal = Calendar.getInstance();
-		DateFormat dateFormatSql = new SimpleDateFormat("y-M-d HH:mm:ss.S", locale);
-		
-		cal.setTime(dateBegin);
-		cal.add(Calendar.DAY_OF_WEEK, 1);
+	public List<Reserved> getReservationsByDate(DateTime dateBegin) {
 
-		String dateEnd = dateFormatSql.format(cal.getTime());
+		DateTime dateEnd;
+		dateEnd = dateBegin.plusHours(24);
 
 		List<Reserved> labReservations = new ArrayList<Reserved>();
 		String selectQuery = "SELECT  * FROM " + TABLE_RESERVED
-				+ " WHERE datetime >= Datetime('" + dateBegin.toString()
-				+ "') AND datetime <= Datetime('" + dateEnd.toString() + "')";
+				+ " WHERE datetime >= Datetime('" + fmt.print(dateBegin)
+				+ "') AND datetime <= Datetime('" + fmt.print(dateEnd) + "')";
 
 		Log.e(LOG, selectQuery);
 
@@ -252,7 +244,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			do {
 				Reserved r = new Reserved();
 				r.setRoom(c.getString(c.getColumnIndex(KEY_ROOM)));
-				r.setDatetime(c.getString(c.getColumnIndex(KEY_DATETIME)));
+				r.setDatetime(fmt.print(c.getColumnIndex(KEY_DATETIME)));
 
 				// adding to lab reservations list
 				labReservations.add(r);

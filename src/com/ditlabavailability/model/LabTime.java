@@ -1,15 +1,19 @@
 package com.ditlabavailability.model;
 
-import java.sql.Timestamp;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 public class LabTime {
 
 	String room;
 	// Expand labtime to day, date, hour etc
-	Timestamp labtime;
+	DateTime labtime;
 	String location;
 	boolean availability;
-	Timestamp untilTime;
+	DateTime untilTime;
+	
+	DateTimeFormatter fmt = DateTimeFormat.forPattern("YYYY-MM-DD HH:mm:ss.SSS");
 
 	public LabTime() {
 	}
@@ -20,7 +24,7 @@ public class LabTime {
 	 * @param location
 	 * @param availability
 	 */
-	public LabTime(String room, Timestamp labtime, String location,
+	public LabTime(String room, DateTime labtime, String location,
 			boolean availability) {
 		this.room = room;
 		this.labtime = labtime;
@@ -32,24 +36,26 @@ public class LabTime {
 	public String toString() {
 		String customOutput;
 		String available = getAvailabilityStr();
-		customOutput = room + " | " + labtime.toString() + " | " + available
+		customOutput = room + " | " + fmt.print(labtime) + " | " + available
 				+ " | " + location;
 		return customOutput;
 	}
 
 	// getters
-	public Timestamp getLabtime() {
+	public DateTime getLabtime() {
 		return labtime;
 	}
 	
 	public String getLabtimeStr() {
-		return labtime.toString();
+		return fmt.print(labtime);
+	}
+	
+	public int getHour() {
+		return labtime.getHourOfDay();
 	}
 	
 	public String getHourStr() {
-		String labtimeStr = getLabtimeStr();
-		String hour = (String)labtimeStr.subSequence(11, 16);
-		return hour;
+		return Integer.toString(labtime.getHourOfDay());
 	}
 
 	public String getRoom() {
@@ -73,12 +79,12 @@ public class LabTime {
 		return available;
 	}
 	
-	public Timestamp getUntilTime() {
+	public DateTime getUntilTime() {
 		return untilTime;
 	}
 
 	// setters
-	public void setLabtime(Timestamp labtime) {
+	public void setLabtime(DateTime labtime) {
 		this.labtime = labtime;
 	}
 
@@ -94,7 +100,7 @@ public class LabTime {
 		this.availability = availability;
 	}
 	
-	public void setUntilTime(Timestamp untilTime) {
+	public void setUntilTime(DateTime untilTime) {
 		this.untilTime = untilTime;
 	}
 	

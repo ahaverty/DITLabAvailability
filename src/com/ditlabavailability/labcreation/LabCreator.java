@@ -1,8 +1,9 @@
 package com.ditlabavailability.labcreation;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.joda.time.DateTime;
 
 import android.util.Log;
 
@@ -16,7 +17,8 @@ public class LabCreator {
 	int dayStart = 9;
 	int dayEnd = 21;
 
-	public ArrayList<LabTime> createLabInstances(DatabaseHelper db, Timestamp selectedDate) {
+	public ArrayList<LabTime> createLabInstances(DatabaseHelper db,
+			DateTime selectedDate) {
 
 		List<LabDetails> allLabs = db.getAllLabs();
 		List<Reserved> reservationsByFilteredDate = db
@@ -24,7 +26,7 @@ public class LabCreator {
 		ArrayList<LabTime> allLabInstances = new ArrayList<LabTime>();
 
 		String room;
-		Timestamp labDatetime;
+		DateTime labDatetime;
 		String location;
 		boolean availability;
 
@@ -33,7 +35,7 @@ public class LabCreator {
 
 			for (int i = dayStart; i <= dayEnd; i++) {
 				room = lab.getRoom();
-				labDatetime = toSqlHourTimestamp(selectedDate, i);
+				labDatetime = selectedDate.withHourOfDay(i);
 				location = lab.getLocation();
 
 				if (isReservationExists(reservationsByFilteredDate, room,
@@ -56,7 +58,7 @@ public class LabCreator {
 	}
 
 	private boolean isReservationExists(List<Reserved> allReservations,
-			String room, Timestamp labDatetime) {
+			String room, DateTime labDatetime) {
 		for (Reserved r : allReservations) {
 			if (r.getRoom().equals(room)) {
 				if (r.getDatetime().equals(labDatetime)) {
@@ -65,23 +67,6 @@ public class LabCreator {
 			}
 		}
 		return false;
-	}
-
-	private Timestamp toSqlHourTimestamp(Timestamp date, int timeHour) {
-
-		Timestamp sqlTimestamp;
-		String tempTimeStr;
-		String timeHourStr = Integer.toString(timeHour);
-
-		if (timeHourStr.length() < 2) {
-			timeHourStr = "0" + timeHourStr;
-		}
-
-		tempTimeStr = date.toString().subSequence(0, 11) + timeHourStr
-				+ ":00:00.000";
-		sqlTimestamp = Timestamp.valueOf(tempTimeStr);
-
-		return sqlTimestamp;
 	}
 
 }

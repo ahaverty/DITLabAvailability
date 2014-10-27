@@ -1,22 +1,16 @@
 package com.ditlabavailability.model;
 
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Locale;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 public class Reserved {
 
 	String room;
-	Timestamp datetime;
+	DateTime datetime;
 	String datetimeStr;
-	Locale locale = java.util.Locale.getDefault();
 	
-	
-	Calendar cal = Calendar.getInstance(locale);
-	SimpleDateFormat dayStringFormat = new SimpleDateFormat("E", locale);
-	SimpleDateFormat dayOfMonthFormat = new SimpleDateFormat("d", locale);
-	SimpleDateFormat hourOfDayFormat = new SimpleDateFormat("H", locale);
+	DateTimeFormatter fmt = DateTimeFormat.forPattern("YYYY-MM-DD HH:mm:ss.SSS");
 
 	public Reserved() {
 	}
@@ -35,36 +29,24 @@ public class Reserved {
 		return room;
 	}
 
-	public Timestamp getDatetime() {
+	public DateTime getDatetime() {
 		return datetime;
 	}
 
 	public String getDatetimeStr() {
-		return datetime.toString();
+		return fmt.print(datetime);
 	}
 
-	public Timestamp getDatetime(String datetimeStr) {
-		return Timestamp.valueOf(datetimeStr);
+	public DateTime getDatetime(String datetimeStr) {
+		return DateTime.parse(datetimeStr,fmt);
 	}
 
 	public int getDayOfWeekInt() {
-		cal.setTime(datetime);
-		return cal.get(Calendar.DAY_OF_WEEK);
-	}
-
-	public String getDayOfWeek() {
-		cal.setTime(datetime);
-		return dayStringFormat.format(cal.getTime());
-	}
-
-	public String getDayOfMonth() {
-		cal.setTime(datetime);
-		return dayOfMonthFormat.format(cal.getTime());
+		return datetime.getDayOfWeek();
 	}
 
 	public String getHourOfDay() {
-		cal.setTime(datetime);
-		return hourOfDayFormat.format(cal.getTime());
+		return Integer.toString(datetime.getHourOfDay());
 	}
 
 	// setters

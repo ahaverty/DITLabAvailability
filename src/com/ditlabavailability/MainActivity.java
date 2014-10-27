@@ -1,7 +1,10 @@
 package com.ditlabavailability;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
+
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import com.ditlabavailability.labcreation.LabCreator;
 import com.ditlabavailability.model.LabTime;
@@ -30,10 +33,12 @@ public class MainActivity extends Activity {
 		DataPopulator.populate(db);
 
 		LabCreator creator = new LabCreator();
-
-		// TODO create filteredTimetamp using filter activity
-		Timestamp filteredTimestamp = Timestamp
-				.valueOf("2014-10-27 00:00:00.000");
+		
+		String testingDate = "2014-10-27 00:00:00.000";
+		DateTimeFormatter fmt = DateTimeFormat.forPattern("YYYY-MM-DD HH:mm:ss.SSS");
+		
+		// TODO create filteredTimestamp using filter activity
+		DateTime filteredTimestamp = DateTime.parse(testingDate, fmt);
 		ArrayList<LabTime> labTimeResults = creator.createLabInstances(db, filteredTimestamp);
 		
         
