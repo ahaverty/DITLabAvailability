@@ -6,6 +6,7 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import com.ditavailability.filter.Filterer;
 import com.ditlabavailability.grouper.LabGrouper;
 import com.ditlabavailability.labcreation.LabCreator;
 import com.ditlabavailability.model.LabTime;
@@ -22,7 +23,9 @@ public class MainActivity extends Activity {
 
 	// Database Helper
 	DatabaseHelper db;
-
+	
+	DateTimeFormatter fmt = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss.SSS");
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -35,9 +38,10 @@ public class MainActivity extends Activity {
 
 		LabCreator creator = new LabCreator();
 		LabGrouper grouper = new LabGrouper();
+		Filterer filterer = new Filterer();
 		
 		String testingDate = "2014-10-27 00:00:00.000";
-		DateTimeFormatter fmt = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss.SSS");
+		DateTime testCurrentDate = DateTime.parse("2014-10-27 11:05:00.000", fmt);
 		
 		// TODO create filteredTimestamp using filter activity
 		DateTime filteredTimestamp = DateTime.parse(testingDate, fmt);
@@ -47,10 +51,11 @@ public class MainActivity extends Activity {
 		db.closeDB();
 		
 		ArrayList<LabTime> labTimesGrouped = grouper.groupLabs(labTimeResults);
+		ArrayList<LabTime> labTimesGroupFuture = filterer.removePastLabsUsingUntil(labTimesGrouped, testCurrentDate);
+        ArrayList<LabTime> labTimesFltrAvail = filterer.arrangeByAvailability(labTimesGroupFuture);
 		
-        
         final ListView lv = (ListView) findViewById(R.id.labListView);
-        lv.setAdapter(new MyCustomBaseAdapter(this, labTimesGrouped));
+        lv.setAdapter(new MyCustomBaseAdapter(this, labTimesFltrAvail));
          
          
         lv.setOnItemClickListener(new OnItemClickListener() {

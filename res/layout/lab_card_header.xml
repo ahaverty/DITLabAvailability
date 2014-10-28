@@ -3,7 +3,10 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical"
-    android:padding="15dip" >
+    android:paddingTop="15dip"
+    android:paddingBottom="5dip"
+    android:paddingStart="15dip"
+    android:paddingEnd="15dip" >
 
     
     <LinearLayout

@@ -19,10 +19,10 @@ public class LabGrouper {
 			
 			
 			
-			// If tempLab's availability and room name matched current lab
+			// NOTE: Inverted if statement!
 			if (! (tempLab.getAvailability() == lt.getAvailability()
 					&& tempLab.getRoom().equals(lt.getRoom())))
-			{	
+			{
 				if(tempLab!=null){
 					labTimesGrouped.add(tempLab);
 				}
