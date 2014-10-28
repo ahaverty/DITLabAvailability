@@ -1,4 +1,4 @@
-package com.ditavailability.filter;
+package com.ditlabavailability.filter;
 
 import java.util.ArrayList;
 import java.util.Collections;

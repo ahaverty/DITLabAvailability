@@ -7,7 +7,6 @@ import org.joda.time.format.DateTimeFormatter;
 public class LabTime {
 
 	String room;
-	// Expand labtime to day, date, hour etc
 	DateTime labtime;
 	String location;
 	boolean availability;
@@ -79,12 +78,23 @@ public class LabTime {
 		}
 		return available;
 	}
+	
+	public int getAvailabilityInt() {
+		if(availability)
+			return 1;
+		else
+			return 0;
+	}
 
 	public DateTime getUntilTime() {
 		return untilTime;
 	}
+	
+	public String getUntilTimeStr() {
+		return untilTime.toString(fmt);
+	}
 
-	public String getUntilStr() {
+	public String getUntilHourStr() {
 		String hourStr = Integer.toString(getUntilTime().getHourOfDay());
 		return hourStr + ":00";
 	}
@@ -92,6 +102,10 @@ public class LabTime {
 	// setters
 	public void setLabtime(DateTime labtime) {
 		this.labtime = labtime;
+	}
+	
+	public void setLabtimeStr(String labtimeStr) {
+		this.labtime = DateTime.parse(labtimeStr, fmt);
 	}
 
 	public void setRoom(String room) {
@@ -105,9 +119,21 @@ public class LabTime {
 	public void setAvailability(boolean availability) {
 		this.availability = availability;
 	}
+	
+	public void setAvailabilityStr(String availability) {
+		int value = Integer.parseInt(availability);
+		if (value == 1)
+			this.availability = true;
+		else
+			this.availability = false;
+	}
 
 	public void setUntilTime(DateTime untilTime) {
 		this.untilTime = untilTime;
+	}
+	
+	public void setUntilTimeStr(String untilTimeStr) {
+		this.untilTime = DateTime.parse(untilTimeStr, fmt);
 	}
 
 	// custom methods

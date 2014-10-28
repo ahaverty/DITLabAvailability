@@ -1,4 +1,4 @@
-package com.ditlabavailability;
+package com.ditlabavailability.dbutils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,17 +17,15 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-public class DatabaseHelper extends SQLiteOpenHelper {
+public class LabTimesDbManager extends SQLiteOpenHelper {
 
 	DateTimeFormatter fmt = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss.SSS");
 
 	// Logcat tag
-	private static final String LOG = "DatabaseHelper";
+	private static final String LOG = "LabTimesDbManager";
 
 	// Database Version
 	private static final int DATABASE_VERSION = 1;
-
-	// Database Name
 	private static final String DATABASE_NAME = "labTimes.db";
 
 	// Table Names
@@ -36,11 +34,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 	// Common columns between tables
 	private static final String KEY_ROOM = "room";
-
-	// LABS Table - column names
 	private static final String KEY_LOCATION = "location";
-
-	// RESERVED Table - column names
 	private static final String KEY_DATETIME = "datetime";
 
 	// Table Create Statements
@@ -54,8 +48,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			+ TABLE_RESERVED + "(" + KEY_ROOM + " TEXT, " + KEY_DATETIME
 			+ " DATETIME, " + "PRIMARY KEY (" + KEY_ROOM + ", " + KEY_DATETIME
 			+ "))";
+	
+	
 
-	public DatabaseHelper(Context context) {
+	public LabTimesDbManager(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
 	}
 
@@ -78,11 +74,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		onCreate(db);
 	}
 
-	/**
-	 * Drop LAB and TIMES tables
-	 * 
-	 * @param db
-	 */
 	public void dropTables(SQLiteDatabase db) {
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_LABS);
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_RESERVED);

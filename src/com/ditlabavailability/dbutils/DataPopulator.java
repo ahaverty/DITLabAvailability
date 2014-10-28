@@ -1,4 +1,4 @@
-package com.ditlabavailability;
+package com.ditlabavailability.dbutils;
 
 import java.util.List;
 
@@ -7,7 +7,7 @@ import com.ditlabavailability.model.Reserved;
 
 public class DataPopulator {
 
-	public static void populate(DatabaseHelper db) {
+	public static void populate(LabTimesDbManager db) {
 
 		// Clear out tables before inserts
 		List<LabDetails> allLabsPre = db.getAllLabs();
@@ -36,8 +36,6 @@ public class DataPopulator {
 		db.createReservation(new Reserved("AU105", "2014-10-27 12:00:00.000"));
 		db.createReservation(new Reserved("KA305", "2014-10-27 10:00:00.000"));
 		db.createReservation(new Reserved("KA311", "2014-10-27 09:00:00.000"));
-
-		
 
 	}
 }

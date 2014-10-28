@@ -17,8 +17,6 @@ public class LabGrouper {
 				tempLab = lt;
 			}
 			
-			
-			
 			// NOTE: Inverted if statement!
 			if (! (tempLab.getAvailability() == lt.getAvailability()
 					&& tempLab.getRoom().equals(lt.getRoom())))

@@ -1,4 +1,4 @@
-package com.ditlabavailability.labcreation;
+package com.ditlabavailability.creator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,7 +7,7 @@ import org.joda.time.DateTime;
 
 import android.util.Log;
 
-import com.ditlabavailability.DatabaseHelper;
+import com.ditlabavailability.dbutils.LabTimesDbManager;
 import com.ditlabavailability.model.LabDetails;
 import com.ditlabavailability.model.LabTime;
 import com.ditlabavailability.model.Reserved;
@@ -17,7 +17,7 @@ public class LabCreator {
 	int dayStart = 9;
 	int dayEnd = 21;
 
-	public ArrayList<LabTime> createLabInstances(DatabaseHelper db,
+	public ArrayList<LabTime> createLabInstances(LabTimesDbManager db,
 			DateTime selectedDate) {
 
 		List<LabDetails> allLabs = db.getAllLabs();
