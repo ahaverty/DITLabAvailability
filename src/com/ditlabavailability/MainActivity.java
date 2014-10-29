@@ -6,13 +6,14 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import com.ditlabavailability.adapters.LabCardBaseAdapter;
 import com.ditlabavailability.creator.LabCreator;
 import com.ditlabavailability.creator.SelectedLabsCreator;
-import com.ditlabavailability.dbutils.DataPopulator;
-import com.ditlabavailability.dbutils.LabTimesDbManager;
-import com.ditlabavailability.dbutils.SelectedLabsDbManager;
-import com.ditlabavailability.filter.Filterer;
-import com.ditlabavailability.grouper.LabGrouper;
+import com.ditlabavailability.data.DataPopulator;
+import com.ditlabavailability.data.LabTimesDbManager;
+import com.ditlabavailability.data.SelectedLabsDbManager;
+import com.ditlabavailability.helpers.Filterer;
+import com.ditlabavailability.helpers.LabGrouper;
 import com.ditlabavailability.model.LabTime;
 
 import android.app.Activity;
@@ -36,7 +37,9 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
-
+		
+		
+		
 		LabCreator creator = new LabCreator();
 		LabGrouper grouper = new LabGrouper();
 		Filterer filterer = new Filterer();

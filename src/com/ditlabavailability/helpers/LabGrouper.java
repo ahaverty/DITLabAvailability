@@ -1,4 +1,4 @@
-package com.ditlabavailability.grouper;
+package com.ditlabavailability.helpers;
 
 import java.util.ArrayList;
 

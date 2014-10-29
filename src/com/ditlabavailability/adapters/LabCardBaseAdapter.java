@@ -1,9 +1,10 @@
-package com.ditlabavailability;
+package com.ditlabavailability.adapters;
 
 import java.util.ArrayList;
 
 import com.ditlabavailability.R;
-
+import com.ditlabavailability.R.id;
+import com.ditlabavailability.R.layout;
 import com.ditlabavailability.model.LabTime;
 
 import android.content.Context;

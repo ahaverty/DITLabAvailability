@@ -6,7 +6,7 @@ import org.joda.time.DateTime;
 
 import android.content.Context;
 
-import com.ditlabavailability.dbutils.SelectedLabsDbManager;
+import com.ditlabavailability.data.SelectedLabsDbManager;
 import com.ditlabavailability.model.LabTime;
 
 public class SelectedLabsCreator {

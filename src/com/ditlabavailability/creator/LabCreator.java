@@ -7,7 +7,7 @@ import org.joda.time.DateTime;
 
 import android.util.Log;
 
-import com.ditlabavailability.dbutils.LabTimesDbManager;
+import com.ditlabavailability.data.LabTimesDbManager;
 import com.ditlabavailability.model.LabDetails;
 import com.ditlabavailability.model.LabTime;
 import com.ditlabavailability.model.Reserved;

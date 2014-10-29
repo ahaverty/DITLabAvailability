@@ -1,4 +1,4 @@
-package com.ditlabavailability.filter;
+package com.ditlabavailability.helpers;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -31,33 +31,25 @@ public class Filterer {
 				// the list
 				for (LabTime roomLookup : labTimeList) {
 					if (roomLookup.getRoom().equals(lab.getRoom())) {
-
 						toMove.add(labTimeList.indexOf(roomLookup));
-
-						// for (int i = labTimeList.indexOf(roomLookup); i <
-						// labTimeList
-						// .size()-1; i++) {
-						// Collections.swap(labTimeList, i, i + 1);
-						// }
 					}
 				}
 			}
 		}
 
-		for (int i : toMove) {
-			labTimeList.add(labTimeList.get(i));
-		}
-
-		int count = 0;
-		for (int i : toMove) {
-			labTimeList.remove(i - count);
-			count++;
-		}
+		moveToEnd(toMove, labTimeList);
 
 		return labTimeList;
 	}
 
-	public boolean isSoonestOfRoom(ArrayList<LabTime> labTimeList, LabTime lab) {
+	/**
+	 * 
+	 * @param labTimeList
+	 * @param lab
+	 * @return boolean if supplied lab is the soonest to occur with the same
+	 *         room name
+	 */
+	private boolean isSoonestOfRoom(ArrayList<LabTime> labTimeList, LabTime lab) {
 		for (LabTime lt : labTimeList) {
 			if (lt.getLabtime().isBefore(lab.getLabtime())
 					&& lt.getRoom().equals(lab.getRoom())) {
@@ -67,4 +59,27 @@ public class Filterer {
 		return true;
 	}
 
+	/**
+	 * Pass in a list of indexes and a list, function moves the items, at each
+	 * index, to the bottom of the list
+	 * 
+	 * @param listOfIndexes
+	 * @param itemList
+	 * @return list with items moved to the bottom, retaining their respective
+	 *         order
+	 */
+	private ArrayList<LabTime> moveToEnd(List<Integer> listOfIndexes,
+			ArrayList<LabTime> itemList) {
+		// pop lab items to bottom of list
+		int count = 0;
+		for (int i : listOfIndexes) {
+			itemList.add(itemList.get(i));
+		}
+		for (int i : listOfIndexes) {
+			itemList.remove(i - count);
+			count++;
+		}
+
+		return itemList;
+	}
 }

@@ -1,4 +1,4 @@
-package com.ditlabavailability.dbutils;
+package com.ditlabavailability.data;
 
 import java.util.ArrayList;
 import java.util.List;
