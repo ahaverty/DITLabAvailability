@@ -30,6 +30,10 @@ public class LabGrouper {
 			tempLab.setUntilTime(lt.getLabtime().plusHours(1));
 		
 		}
+		
+		// add last lab item to list
+		labTimesGrouped.add(tempLab);
+		
 		return labTimesGrouped;
 	}
 }
