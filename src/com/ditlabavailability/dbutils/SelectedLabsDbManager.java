@@ -2,6 +2,7 @@ package com.ditlabavailability.dbutils;
 
 import java.util.ArrayList;
 
+import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -41,8 +42,8 @@ public class SelectedLabsDbManager extends SQLiteOpenHelper {
 			+ TABLE_S_LABTIME + "(" + KEY_ROOM + " TEXT, " + KEY_LABTIME
 			+ " DATETIME, " + KEY_UNTILTIME + " DATETIME NOT NULL,"
 			+ KEY_LOCATION + " TEXT NOT NULL," + KEY_AVAILABILITY
-			+ " BOOLEAN NOT NULL CHECK (" + KEY_AVAILABILITY + " IN (0,1))," + "PRIMARY KEY ("
-			+ KEY_ROOM + ", " + KEY_LABTIME + "))";
+			+ " BOOLEAN NOT NULL CHECK (" + KEY_AVAILABILITY + " IN (0,1)),"
+			+ "PRIMARY KEY (" + KEY_ROOM + ", " + KEY_LABTIME + "))";
 
 	public SelectedLabsDbManager(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -65,6 +66,25 @@ public class SelectedLabsDbManager extends SQLiteOpenHelper {
 		onCreate(db);
 	}
 
+	private ArrayList<LabTime> retrieveLabData(Cursor c) {
+		ArrayList<LabTime> labs = new ArrayList<LabTime>();
+		if (c.moveToFirst()) {
+			do {
+				LabTime lt = new LabTime();
+				lt.setRoom(c.getString(c.getColumnIndex(KEY_ROOM)));
+				lt.setLabtimeStr(c.getString(c.getColumnIndex(KEY_LABTIME)));
+				lt.setUntilTimeStr(c.getString(c.getColumnIndex(KEY_UNTILTIME)));
+				lt.setLocation(c.getString(c.getColumnIndex(KEY_LOCATION)));
+				lt.setAvailabilityStr(c.getString(c
+						.getColumnIndex(KEY_AVAILABILITY)));
+
+				// adding to lab times list
+				labs.add(lt);
+			} while (c.moveToNext());
+		}
+		return labs;
+	}
+
 	// closing database
 	public void closeDB() {
 		SQLiteDatabase db = this.getReadableDatabase();
@@ -75,6 +95,12 @@ public class SelectedLabsDbManager extends SQLiteOpenHelper {
 	public void dropTable() {
 		SQLiteDatabase db = this.getReadableDatabase();
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_S_LABTIME);
+	}
+
+	public void deleteLab(String labRoom) {
+		SQLiteDatabase db = this.getWritableDatabase();
+		db.delete(TABLE_S_LABTIME, KEY_ROOM + " = ?",
+				new String[] { String.valueOf(labRoom) });
 	}
 
 	/**
@@ -95,13 +121,13 @@ public class SelectedLabsDbManager extends SQLiteOpenHelper {
 
 		return lab_id;
 	}
-	
-	public void deleteLab(String labRoom) {
-		SQLiteDatabase db = this.getWritableDatabase();
-		db.delete(TABLE_S_LABTIME, KEY_ROOM + " = ?",
-				new String[] { String.valueOf(labRoom) });
+
+	public void createLabFromArray(ArrayList<LabTime> labArray) {
+		for (LabTime lab : labArray) {
+			createLab(lab);
+		}
 	}
-	
+
 	public ArrayList<LabTime> getAllLabs() {
 		ArrayList<LabTime> selectedLabs = new ArrayList<LabTime>();
 		String selectQuery = "SELECT  * FROM " + TABLE_S_LABTIME;
@@ -111,28 +137,32 @@ public class SelectedLabsDbManager extends SQLiteOpenHelper {
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor c = db.rawQuery(selectQuery, null);
 
-		// looping through all rows and adding to list
-		if (c.moveToFirst()) {
-			do {
-				LabTime lt = new LabTime();
-				lt.setRoom(c.getString(c.getColumnIndex(KEY_ROOM)));
-				lt.setLabtimeStr(c.getString(c.getColumnIndex(KEY_LABTIME)));
-				lt.setUntilTimeStr(c.getString(c.getColumnIndex(KEY_UNTILTIME)));
-				lt.setLocation(c.getString(c.getColumnIndex(KEY_LOCATION)));
-				lt.setAvailabilityStr(c.getString(c.getColumnIndex(KEY_AVAILABILITY)));
+		selectedLabs = retrieveLabData(c);
 
-				// adding to lab times list
-				selectedLabs.add(lt);
-			} while (c.moveToNext());
-		}
 		return selectedLabs;
-		
+
 	}
 
-	public void createLabFromArray(ArrayList<LabTime> labArray) {
-		for (LabTime lab : labArray) {
-			createLab(lab);
-		}
+	/**
+	 * 
+	 * @param timeFrom
+	 * @return array of labs, occurring after or during specified time, ordered
+	 *         by room name and time.
+	 */
+	public ArrayList<LabTime> getLabsAfterTime(DateTime timeFrom) {
+		ArrayList<LabTime> selectedLabs = new ArrayList<LabTime>();
+		String selectQuery = "SELECT  * FROM " + TABLE_S_LABTIME + " WHERE "
+				+ KEY_UNTILTIME + " > Datetime('" + timeFrom.toString(fmt)
+				+ "') ORDER BY " + KEY_ROOM + " ASC, " + KEY_LABTIME + " ASC";
+
+		Log.e(LOG, selectQuery);
+
+		SQLiteDatabase db = this.getReadableDatabase();
+		Cursor c = db.rawQuery(selectQuery, null);
+
+		selectedLabs = retrieveLabData(c);
+
+		return selectedLabs;
 	}
 
 }

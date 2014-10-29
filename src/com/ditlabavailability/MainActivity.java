@@ -56,18 +56,18 @@ public class MainActivity extends Activity {
 		// create all labs, available and unavailable, for specified day
 		ArrayList<LabTime> labTimeResults = creator.createLabInstances(
 				dbLabTimes, filteredTimestamp);
-		
+
 		// group lab items that are consecutive and of same room & availability
 		ArrayList<LabTime> labTimesGrouped = grouper.groupLabs(labTimeResults);
-		
+
 		// insert grouped lab items into local database
 		dbSelected = new SelectedLabsDbManager(getApplicationContext());
 		selectedCreator.createSelectedLabs(dbSelected, getApplicationContext(),
 				labTimesGrouped);
+		ArrayList<LabTime> labTimesGroupFuture = selectedCreator
+				.getLabsAfterTime(testCurrentDate);
 		dbSelected.close();
 
-		ArrayList<LabTime> labTimesGroupFuture = filterer
-				.removePastLabsUsingUntil(labTimesGrouped, testCurrentDate);
 		ArrayList<LabTime> labTimesFltrAvail = filterer
 				.arrangeByAvailability(labTimesGroupFuture);
 
