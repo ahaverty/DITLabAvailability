@@ -17,6 +17,7 @@ import com.ditlabavailability.helpers.LabGrouper;
 import com.ditlabavailability.model.LabTime;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -26,28 +27,47 @@ import android.widget.AdapterView.OnItemClickListener;
 
 public class MainActivity extends Activity {
 
-	// Database Helper
-	LabTimesDbManager dbLabTimes;
-	SelectedLabsDbManager dbSelected;
-
 	DateTimeFormatter fmt = DateTimeFormat
 			.forPattern("YYYY-MM-dd HH:mm:ss.SSS");
+	String testingDate = "2014-10-27 00:00:00.000";
+	DateTime testCurrentDate = DateTime.parse("2014-10-27 11:05:00.000", fmt);
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.main);
-		
-		
-		
+		setContentView(R.layout.all_labs_main_view);
+
+		final ListView lv = (ListView) findViewById(R.id.labListView);
+		lv.setAdapter(new LabCardBaseAdapter(this, ceateLabData()));
+
+		lv.setOnItemClickListener(new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> a, View v, int position,
+					long id) {
+				Object o = lv.getItemAtPosition(position);
+				LabTime fullObject = (LabTime) o;
+				Toast.makeText(MainActivity.this,
+						"You have chosen: " + " " + fullObject.getRoom(),
+						Toast.LENGTH_LONG).show();
+
+				Intent intent = new Intent(MainActivity.this,
+						LabViewActivity.class);
+				intent.putExtra("lab_name", fullObject.getRoom());
+				startActivity(intent);
+			}
+		});
+
+	}
+
+	private ArrayList<LabTime> ceateLabData() {
+
+		LabTimesDbManager dbLabTimes;
+		SelectedLabsDbManager dbSelected;
+
 		LabCreator creator = new LabCreator();
 		LabGrouper grouper = new LabGrouper();
 		Filterer filterer = new Filterer();
 		SelectedLabsCreator selectedCreator = new SelectedLabsCreator();
-
-		String testingDate = "2014-10-27 00:00:00.000";
-		DateTime testCurrentDate = DateTime.parse("2014-10-27 11:05:00.000",
-				fmt);
 
 		dbLabTimes = new LabTimesDbManager(getApplicationContext());
 		DataPopulator.populate(dbLabTimes);
@@ -74,20 +94,6 @@ public class MainActivity extends Activity {
 		ArrayList<LabTime> labTimesFltrAvail = filterer
 				.arrangeByAvailability(labTimesGroupFuture);
 
-		final ListView lv = (ListView) findViewById(R.id.labListView);
-		lv.setAdapter(new LabCardBaseAdapter(this, labTimesFltrAvail));
-
-		lv.setOnItemClickListener(new OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> a, View v, int position,
-					long id) {
-				Object o = lv.getItemAtPosition(position);
-				LabTime fullObject = (LabTime) o;
-				Toast.makeText(MainActivity.this,
-						"You have chosen: " + " " + fullObject.getRoom(),
-						Toast.LENGTH_LONG).show();
-			}
-		});
-
+		return labTimesFltrAvail;
 	}
 }

@@ -4,5 +4,7 @@
     <string name="app_name">DIT Lab Availability</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="all_lab_view_label">All Labs</string>
+    <string name="single_lab_view_label">Lab Details</string>
 
 </resources>

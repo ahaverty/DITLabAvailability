@@ -164,5 +164,40 @@ public class SelectedLabsDbManager extends SQLiteOpenHelper {
 
 		return selectedLabs;
 	}
+	
+	/**
+	 * 
+	 * @param timeFrom
+	 * @return array of labs, occurring after or during specified time, ordered
+	 *         by room name and current time.
+	 */
+	public ArrayList<LabTime> getFutureLabsByRoom(String roomName) {
+		DateTime timeFrom = DateTime.now();
+		return getFutureLabsByRoom(roomName, timeFrom);
+	}
+	
+	/**
+	 * 
+	 * @param timeFrom
+	 * @return array of labs, occurring after or during specified time, ordered
+	 *         by room name and time.
+	 */
+	public ArrayList<LabTime> getFutureLabsByRoom(String roomName, DateTime timeFrom) {
+		ArrayList<LabTime> selectedLabs = new ArrayList<LabTime>();
+		
+		String selectQuery = "SELECT * FROM " + TABLE_S_LABTIME + " WHERE "
+				+ KEY_ROOM + " = '" + roomName + "' AND " + KEY_UNTILTIME
+				+ " > Datetime('" + timeFrom.toString(fmt) + "') ORDER BY "
+				+ KEY_ROOM + " ASC, " + KEY_LABTIME + " ASC";
+
+		Log.e(LOG, selectQuery);
+
+		SQLiteDatabase db = this.getReadableDatabase();
+		Cursor c = db.rawQuery(selectQuery, null);
+
+		selectedLabs = retrieveLabData(c);
+
+		return selectedLabs;
+	}
 
 }
