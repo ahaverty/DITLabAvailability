@@ -11,9 +11,9 @@ import com.ditlabavailability.model.LabTime;
 
 public class SelectedLabsCreator {
 	
-	SelectedLabsDbManager dbSelected;
+	static SelectedLabsDbManager dbSelected;
 	
-	public void createSelectedLabs(SelectedLabsDbManager db, Context context, ArrayList<LabTime> labTimesGrouped) {
+	public static void createSelectedLabs(SelectedLabsDbManager db, Context context, ArrayList<LabTime> labTimesGrouped) {
 		
 		// Clear out tables before inserts
 		ArrayList<LabTime> allLabsPre = db.getAllLabs();
@@ -26,11 +26,11 @@ public class SelectedLabsCreator {
 		dbSelected.createLabFromArray(labTimesGrouped);
 	}
 	
-	public ArrayList<LabTime> getLabsAfterTime(DateTime timeFrom){
+	static public ArrayList<LabTime> getLabsAfterTime(DateTime timeFrom){
 		return dbSelected.getLabsAfterTime(timeFrom);
 	}
 	
-	public ArrayList<LabTime> getFutureLabsByRoom(Context context, String roomName, DateTime timeFrom){
+	static public ArrayList<LabTime> getFutureLabsByRoom(Context context, String roomName, DateTime timeFrom){
 		dbSelected = new SelectedLabsDbManager(context);
 		return dbSelected.getFutureLabsByRoom(roomName, timeFrom);
 	}

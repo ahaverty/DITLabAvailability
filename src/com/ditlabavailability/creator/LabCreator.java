@@ -14,10 +14,10 @@ import com.ditlabavailability.model.Reserved;
 
 public class LabCreator {
 
-	int dayStart = 9;
-	int dayEnd = 21;
+	static int dayStart = 9;
+	static int dayEnd = 21;
 
-	public ArrayList<LabTime> createLabInstances(LabTimesDbManager db,
+	public static ArrayList<LabTime> createAllLabInstances(LabTimesDbManager db,
 			DateTime selectedDate) {
 
 		List<LabDetails> allLabs = db.getAllLabs();
@@ -57,7 +57,7 @@ public class LabCreator {
 
 	}
 
-	private boolean isReservationExists(List<Reserved> allReservations,
+	private static boolean isReservationExists(List<Reserved> allReservations,
 			String room, DateTime labDatetime) {
 		for (Reserved r : allReservations) {
 			if (r.getRoom().equals(room)) {

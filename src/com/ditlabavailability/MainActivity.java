@@ -38,7 +38,7 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.all_labs_main_view);
 
 		final ListView lv = (ListView) findViewById(R.id.labListView);
-		lv.setAdapter(new LabCardBaseAdapter(this, ceateLabData()));
+		lv.setAdapter(new LabCardBaseAdapter(this, refreshLabs()));
 
 		lv.setOnItemClickListener(new OnItemClickListener() {
 			@Override
@@ -58,16 +58,16 @@ public class MainActivity extends Activity {
 		});
 
 	}
+	
+	private ArrayList<LabTime> refreshLabs() {
+		ceateDaysLabData();
+		return getLabs();
+	}
 
-	private ArrayList<LabTime> ceateLabData() {
+	private void ceateDaysLabData() {
 
 		LabTimesDbManager dbLabTimes;
 		SelectedLabsDbManager dbSelected;
-
-		LabCreator creator = new LabCreator();
-		LabGrouper grouper = new LabGrouper();
-		Filterer filterer = new Filterer();
-		SelectedLabsCreator selectedCreator = new SelectedLabsCreator();
 
 		dbLabTimes = new LabTimesDbManager(getApplicationContext());
 		DataPopulator.populate(dbLabTimes);
@@ -76,23 +76,29 @@ public class MainActivity extends Activity {
 		// TODO create filteredTimestamp using filter activity
 		DateTime filteredTimestamp = DateTime.parse(testingDate, fmt);
 
-		// create all labs, available and unavailable, for specified day
-		ArrayList<LabTime> labTimeResults = creator.createLabInstances(
+		ArrayList<LabTime> initialLabTimes = LabCreator.createAllLabInstances(
 				dbLabTimes, filteredTimestamp);
 
-		// group lab items that are consecutive and of same room & availability
-		ArrayList<LabTime> labTimesGrouped = grouper.groupLabs(labTimeResults);
+		ArrayList<LabTime> labTimesGrouped = LabGrouper
+				.groupSimilarLabsByAvailability(initialLabTimes);
 
 		// insert grouped lab items into local database
 		dbSelected = new SelectedLabsDbManager(getApplicationContext());
-		selectedCreator.createSelectedLabs(dbSelected, getApplicationContext(),
-				labTimesGrouped);
-		ArrayList<LabTime> labTimesGroupFuture = selectedCreator
+		SelectedLabsCreator.createSelectedLabs(dbSelected,
+				getApplicationContext(), labTimesGrouped);
+		dbSelected.close();
+		
+	}
+	
+	private ArrayList<LabTime> getLabs() {
+		SelectedLabsDbManager dbSelected;
+		dbSelected = new SelectedLabsDbManager(getApplicationContext());
+		ArrayList<LabTime> labTimesGroupFuture = SelectedLabsCreator
 				.getLabsAfterTime(testCurrentDate);
 		dbSelected.close();
 
-		ArrayList<LabTime> labTimesFltrAvail = filterer
-				.arrangeByAvailability(labTimesGroupFuture);
+		ArrayList<LabTime> labTimesFltrAvail = Filterer
+				.arrangeGroupedLabsByAvailability(labTimesGroupFuture);
 
 		return labTimesFltrAvail;
 	}

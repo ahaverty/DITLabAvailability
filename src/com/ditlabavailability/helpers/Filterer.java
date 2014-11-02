@@ -9,14 +9,11 @@ import com.ditlabavailability.model.LabTime;
 public class Filterer {
 
 	/**
-	 * Function assumes labs are being passed in already sorted by into groups
-	 * of rooms.
-	 * 
 	 * @param labTimeList
 	 * @return Sorted list of labs, placing groups, at end of list, where first
 	 *         occurrence in group is 'unavailable'.
 	 */
-	public ArrayList<LabTime> arrangeByAvailability(
+	public static ArrayList<LabTime> arrangeGroupedLabsByAvailability(
 			ArrayList<LabTime> labTimeList) {
 
 		List<Integer> toMove = new ArrayList<Integer>();
@@ -49,7 +46,7 @@ public class Filterer {
 	 * @return boolean if supplied lab is the soonest to occur with the same
 	 *         room name
 	 */
-	private boolean isSoonestOfRoom(ArrayList<LabTime> labTimeList, LabTime lab) {
+	private static boolean isSoonestOfRoom(ArrayList<LabTime> labTimeList, LabTime lab) {
 		for (LabTime lt : labTimeList) {
 			if (lt.getLabtime().isBefore(lab.getLabtime())
 					&& lt.getRoom().equals(lab.getRoom())) {
@@ -68,7 +65,7 @@ public class Filterer {
 	 * @return list with items moved to the bottom, retaining their respective
 	 *         order
 	 */
-	private ArrayList<LabTime> moveToEnd(List<Integer> listOfIndexes,
+	private static ArrayList<LabTime> moveToEnd(List<Integer> listOfIndexes,
 			ArrayList<LabTime> itemList) {
 		// pop lab items to bottom of list
 		int count = 0;

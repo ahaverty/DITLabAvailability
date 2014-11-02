@@ -53,9 +53,7 @@ public class LabViewActivity extends Activity implements View.OnClickListener {
 		// TODO get array of labs for this lab name, filtering out past labs and
 		// grouping as normal
 
-		SelectedLabsCreator selectedCreator = new SelectedLabsCreator();
-
-		ArrayList<LabTime> labs = selectedCreator.getFutureLabsByRoom(
+		ArrayList<LabTime> labs = SelectedLabsCreator.getFutureLabsByRoom(
 				getApplicationContext(), roomName, testCurrentDate);
 
 		labName = (TextView) findViewById(R.id.lab_name);
@@ -82,9 +80,8 @@ public class LabViewActivity extends Activity implements View.OnClickListener {
 					+ periodUntilStr);
 		}
 
-		// for(LabTime lab:labs){
-		//
-		// }
+//		final ListView lv = (ListView) findViewById(R.id.labListView);
+//		lv.setAdapter(new LabCardBaseAdapter(this, ceateLabData()));
 
 	}
 }
