@@ -9,12 +9,14 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.PeriodFormat;
 
+import com.ditlabavailability.adapters.LabCardBaseAdapter;
 import com.ditlabavailability.creator.SelectedLabsCreator;
 import com.ditlabavailability.model.LabTime;
 
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ListView;
 import android.widget.TextView;
 
 public class LabViewActivity extends Activity implements View.OnClickListener {
@@ -38,7 +40,7 @@ public class LabViewActivity extends Activity implements View.OnClickListener {
 			roomName = extras.getString("lab_name");
 		}
 
-		createLabContent();
+		fillLabContent();
 	}
 
 	@Override
@@ -46,7 +48,7 @@ public class LabViewActivity extends Activity implements View.OnClickListener {
 		finish();
 	}
 
-	private void createLabContent() {
+	private void fillLabContent() {
 
 		Period periodUntilChange;
 
@@ -64,7 +66,8 @@ public class LabViewActivity extends Activity implements View.OnClickListener {
 				.withMillisOfSecond(0), labs.get(0).getUntilTime());
 		String periodUntilStr = PeriodFormat.getDefault().print(
 				periodUntilChange);
-
+		
+		// General lab data
 		labName.setText(labs.get(0).getRoom());
 		labLocation.setText(labs.get(0).getLocation());
 		labAvailability.setText("This lab is "
@@ -79,9 +82,19 @@ public class LabViewActivity extends Activity implements View.OnClickListener {
 			labAvailability.setText("This lab is available for the next "
 					+ periodUntilStr);
 		}
+		
+		
+		// Rest of lab's times as list for day
+		
+		ArrayList<LabTime> restOfLabs = labsMinusFirstlab(labs);
+		
+		final ListView lv = (ListView) findViewById(R.id.labListView);
+		lv.setAdapter(new LabCardBaseAdapter(this, restOfLabs));
 
-//		final ListView lv = (ListView) findViewById(R.id.labListView);
-//		lv.setAdapter(new LabCardBaseAdapter(this, ceateLabData()));
-
+	}
+	
+	private ArrayList<LabTime> labsMinusFirstlab(ArrayList<LabTime> labs) {
+		labs.remove(0);
+		return labs;
 	}
 }
