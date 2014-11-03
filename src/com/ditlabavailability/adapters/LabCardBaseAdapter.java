@@ -13,9 +13,9 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 public class LabCardBaseAdapter extends BaseAdapter {
-	private static ArrayList<LabTime> labArrayList;
+	public static ArrayList<LabTime> labArrayList;
 
-	private LayoutInflater mInflater;
+	public LayoutInflater mInflater;
 
 	public LabCardBaseAdapter(Context context, ArrayList<LabTime> results) {
 		labArrayList = results;
@@ -37,17 +37,21 @@ public class LabCardBaseAdapter extends BaseAdapter {
 	public View getView(int position, View convertView, ViewGroup parent) {
 		ViewHolder holder = new ViewHolder();
 		boolean doesMatchPrevious;
-		
-		
+		int unavailableColor = mInflater.getContext().getResources()
+				.getColor(R.color.unavailable_lab_room_name);
+
+		LabTime lab = labArrayList.get(position);
+
 		if (position > 0) {
 			doesMatchPrevious = labArrayList.get(position - 1).getRoom()
-					.equals(labArrayList.get(position).getRoom());
+					.equals(lab.getRoom());
 		} else {
 			doesMatchPrevious = false;
 		}
 
 		if (doesMatchPrevious) {
-			convertView = mInflater.inflate(R.layout.sub_lab_card, parent, false);
+			convertView = mInflater.inflate(R.layout.sub_lab_card, parent,
+					false);
 
 			holder.availability = (TextView) convertView
 					.findViewById(R.id.availability);
@@ -56,7 +60,8 @@ public class LabCardBaseAdapter extends BaseAdapter {
 		}
 
 		else {
-			convertView = mInflater.inflate(R.layout.lab_card_header, parent, false);
+			convertView = mInflater.inflate(R.layout.lab_card_header, parent,
+					false);
 
 			holder.labName = (TextView) convertView.findViewById(R.id.labName);
 			holder.time = (TextView) convertView.findViewById(R.id.time);
@@ -66,15 +71,21 @@ public class LabCardBaseAdapter extends BaseAdapter {
 					.findViewById(R.id.location);
 			convertView.setTag(holder);
 
-			holder.labName.setText(labArrayList.get(position).getRoom());
-			holder.location.setText(labArrayList.get(position).getLocation());
+			holder.labName.setText(lab.getRoom());
+			holder.location.setText(lab.getLocation());
+
+			if (lab.getAvailability() == false) {
+				holder.labName.setTextColor(unavailableColor);
+				holder.time.setTextColor(unavailableColor);
+				holder.availability.setTextColor(unavailableColor);
+				holder.location.setTextColor(unavailableColor);
+			}
+
 		}
 
 		// common setters among lab cards
-		holder.time.setText(labArrayList.get(position).getHourStr() + " - "
-				+ labArrayList.get(position).getUntilHourStr());
-		holder.availability.setText(labArrayList.get(position)
-				.getAvailabilityStr());
+		holder.time.setText(lab.getHourStr() + " - " + lab.getUntilHourStr());
+		holder.availability.setText(lab.getAvailabilityStr());
 
 		return convertView;
 	}

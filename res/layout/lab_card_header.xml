@@ -4,9 +4,7 @@
     android:layout_height="fill_parent"
     android:orientation="vertical"
     android:paddingTop="15dip"
-    android:paddingBottom="5dip"
-    android:paddingStart="15dip"
-    android:paddingEnd="15dip" >
+    android:paddingBottom="5dip" >
 
     
     <LinearLayout
@@ -20,7 +18,7 @@
 	        android:layout_height="wrap_content"
 	        android:layout_weight="1"
         	android:ellipsize="end"
-	        android:textColor="#C20000"
+	        android:textColor="#039be5"
 	        android:textSize="20sp"
 	        android:textStyle="bold" />
 	 
@@ -30,7 +28,6 @@
 	        android:layout_height="wrap_content"
 	        android:layout_weight="0"
         	android:layout_gravity="center|end"
-	        android:textColor="#C20000"
 	        android:textSize="17sp"
 	        android:textStyle="bold" />
 	 
@@ -46,14 +43,18 @@
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:layout_weight="1"
-        	android:ellipsize="end" />
+        	android:ellipsize="end"
+	        android:textStyle="bold"
+	        android:textColor="#A6000000" />
 	 
 	    <TextView
 	        android:id="@+id/location"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:layout_weight="0"
-        	android:layout_gravity="end" />
+        	android:layout_gravity="end"
+	        android:textStyle="bold"
+	        android:textColor="#A6000000" />
 	    
     </LinearLayout>
  

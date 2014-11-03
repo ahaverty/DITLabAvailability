@@ -10,12 +10,14 @@ import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.PeriodFormat;
 
 import com.ditlabavailability.adapters.LabCardBaseAdapter;
+import com.ditlabavailability.adapters.LabCardSubOnlyBaseAdapter;
 import com.ditlabavailability.creator.SelectedLabsCreator;
 import com.ditlabavailability.model.LabTime;
 
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -24,6 +26,9 @@ public class LabViewActivity extends Activity implements View.OnClickListener {
 	TextView labName;
 	TextView labLocation;
 	TextView labAvailability;
+	TextView futureLabsTitle;
+	Button reminderButton;
+	
 	String roomName;
 
 	DateTimeFormatter fmt = DateTimeFormat
@@ -61,6 +66,7 @@ public class LabViewActivity extends Activity implements View.OnClickListener {
 		labName = (TextView) findViewById(R.id.lab_name);
 		labLocation = (TextView) findViewById(R.id.lab_location);
 		labAvailability = (TextView) findViewById(R.id.lab_availability);
+		futureLabsTitle = (TextView) findViewById(R.id.future_labs_header);
 
 		periodUntilChange = new Period(testCurrentDate.withSecondOfMinute(0)
 				.withMillisOfSecond(0), labs.get(0).getUntilTime());
@@ -70,26 +76,28 @@ public class LabViewActivity extends Activity implements View.OnClickListener {
 		// General lab data
 		labName.setText(labs.get(0).getRoom());
 		labLocation.setText(labs.get(0).getLocation());
-		labAvailability.setText("This lab is "
-				+ labs.get(0).getAvailabilityStr().toLowerCase(Locale.ENGLISH)
-				+ " for the next " + periodUntilStr);
 
-		if (!labs.get(0).getAvailability()) {
-			labAvailability.setText("This lab will be free in "
-					+ periodUntilStr);
-			labAvailability.setTextColor(0xffff0000);
+		if (labs.get(0).getAvailability()) {
+			labAvailability.setText("Available for "
+					+ periodUntilStr + ".");
+			
+			
 		} else {
-			labAvailability.setText("This lab is available for the next "
-					+ periodUntilStr);
+			labAvailability.setText("Unavailable for "
+					+ periodUntilStr + ".");
+			labAvailability.setTextColor(0xffff0000);
 		}
 		
-		
 		// Rest of lab's times as list for day
-		
 		ArrayList<LabTime> restOfLabs = labsMinusFirstlab(labs);
 		
-		final ListView lv = (ListView) findViewById(R.id.labListView);
-		lv.setAdapter(new LabCardBaseAdapter(this, restOfLabs));
+		if(restOfLabs.isEmpty() == false){
+			final ListView lv = (ListView) findViewById(R.id.labListView);
+			lv.setAdapter(new LabCardSubOnlyBaseAdapter(this, restOfLabs));
+		}
+		else{
+			futureLabsTitle.setVisibility(View.GONE);
+		}
 
 	}
 	
