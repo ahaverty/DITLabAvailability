@@ -46,10 +46,7 @@ public class MainActivity extends Activity {
 					long id) {
 				Object o = lv.getItemAtPosition(position);
 				LabTime fullObject = (LabTime) o;
-				Toast.makeText(MainActivity.this,
-						"You have chosen: " + " " + fullObject.getRoom(),
-						Toast.LENGTH_LONG).show();
-
+				
 				Intent intent = new Intent(MainActivity.this,
 						LabViewActivity.class);
 				intent.putExtra("lab_name", fullObject.getRoom());

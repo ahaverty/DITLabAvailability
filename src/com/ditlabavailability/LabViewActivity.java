@@ -1,7 +1,6 @@
 package com.ditlabavailability;
 
 import java.util.ArrayList;
-import java.util.Locale;
 
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -9,7 +8,6 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.PeriodFormat;
 
-import com.ditlabavailability.adapters.LabCardBaseAdapter;
 import com.ditlabavailability.adapters.LabCardSubOnlyBaseAdapter;
 import com.ditlabavailability.creator.SelectedLabsCreator;
 import com.ditlabavailability.model.LabTime;
@@ -17,9 +15,10 @@ import com.ditlabavailability.model.LabTime;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class LabViewActivity extends Activity implements View.OnClickListener {
 
@@ -27,7 +26,7 @@ public class LabViewActivity extends Activity implements View.OnClickListener {
 	TextView labLocation;
 	TextView labAvailability;
 	TextView futureLabsTitle;
-	Button reminderButton;
+	ImageButton reminderButton;
 	
 	String roomName;
 
@@ -39,6 +38,9 @@ public class LabViewActivity extends Activity implements View.OnClickListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.lab_full_view);
 		getActionBar().setDisplayHomeAsUpEnabled(true);
+		
+		reminderButton = (ImageButton)findViewById(R.id.reminder_button);
+		reminderButton.setOnClickListener(this);
 
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
@@ -50,7 +52,7 @@ public class LabViewActivity extends Activity implements View.OnClickListener {
 
 	@Override
 	public void onClick(View v) {
-		finish();
+		Toast.makeText(LabViewActivity.this, "Reminder set for: ", Toast.LENGTH_LONG).show();
 	}
 
 	private void fillLabContent() {
@@ -81,11 +83,15 @@ public class LabViewActivity extends Activity implements View.OnClickListener {
 			labAvailability.setText("Available for "
 					+ periodUntilStr + ".");
 			
+			//reminderButton.setText("Notify me when becoming unavailable");
 			
 		} else {
 			labAvailability.setText("Unavailable for "
 					+ periodUntilStr + ".");
 			labAvailability.setTextColor(0xffff0000);
+			
+			//reminderButton.setText("Notify me when available");
+			
 		}
 		
 		// Rest of lab's times as list for day
