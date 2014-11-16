@@ -4,9 +4,17 @@
     tools:context="com.ditlabavailability.MainActivity" >
 
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/menu_settings"
         android:orderInCategory="100"
-        android:title="@string/action_settings"
-        app:showAsAction="never"/>
+        android:showAsAction="always"
+        android:title="Settings"
+        />
 
-</menu>
+    <item
+        android:id="@+id/menu_load"
+        android:icon="@drawable/ic_action_refresh_white"
+        android:orderInCategory="200"
+        android:showAsAction="always"
+        android:title="Load"/>
+
+</menu> 

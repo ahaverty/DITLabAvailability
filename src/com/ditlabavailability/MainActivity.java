@@ -16,14 +16,19 @@ import com.ditlabavailability.helpers.Filterer;
 import com.ditlabavailability.helpers.LabGrouper;
 import com.ditlabavailability.model.LabTime;
 
+import android.app.ActionBar;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
@@ -32,10 +37,16 @@ public class MainActivity extends Activity {
 	String testingDate = "2014-10-27 00:00:00.000";
 	DateTime testCurrentDate = DateTime.parse("2014-10-27 11:05:00.000", fmt);
 
+	private MenuItem menuItem;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.all_labs_main_view);
+
+		ActionBar actionBar = getActionBar();
+		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME
+				| ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_SHOW_CUSTOM);
 
 		final ListView lv = (ListView) findViewById(R.id.labListView);
 		lv.setAdapter(new LabCardBaseAdapter(this, refreshLabs()));
@@ -46,7 +57,7 @@ public class MainActivity extends Activity {
 					long id) {
 				Object o = lv.getItemAtPosition(position);
 				LabTime fullObject = (LabTime) o;
-				
+
 				Intent intent = new Intent(MainActivity.this,
 						LabViewActivity.class);
 				intent.putExtra("lab_name", fullObject.getRoom());
@@ -55,7 +66,46 @@ public class MainActivity extends Activity {
 		});
 
 	}
-	
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.main, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.menu_load:
+			menuItem = item;
+			menuItem.setActionView(R.layout.progress_bar);
+			menuItem.expandActionView();
+			RefreshLabsInBackground task = new RefreshLabsInBackground();
+			task.execute(getApplicationContext());
+			break;
+		default:
+			break;
+		}
+		return true;
+	}
+
+	private class RefreshLabsInBackground extends
+			AsyncTask<Context, Void, ArrayList<LabTime>> {
+		private Context mContext;
+
+		protected ArrayList<LabTime> doInBackground(Context... context) {
+			mContext = context[0];
+			return refreshLabs();
+		}
+
+		protected void onPostExecute(ArrayList<LabTime> labs) {
+			final ListView lv = (ListView) findViewById(R.id.labListView);
+			lv.setAdapter(new LabCardBaseAdapter(mContext, labs));
+			Toast.makeText(mContext, "Labs times have been updated",
+					Toast.LENGTH_SHORT).show();
+		}
+	};
+
 	private ArrayList<LabTime> refreshLabs() {
 		ceateDaysLabData();
 		return getLabs();
@@ -84,9 +134,8 @@ public class MainActivity extends Activity {
 		SelectedLabsCreator.createSelectedLabs(dbSelected,
 				getApplicationContext(), labTimesGrouped);
 		dbSelected.close();
-		
 	}
-	
+
 	private ArrayList<LabTime> getLabs() {
 		SelectedLabsDbManager dbSelected;
 		dbSelected = new SelectedLabsDbManager(getApplicationContext());
