@@ -32,7 +32,7 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
-	protected DateTimeFormatter fmt = DateTimeFormat
+	public DateTimeFormatter fmt = DateTimeFormat
 			.forPattern("YYYY-MM-dd HH:mm:ss.SSS");
 	protected String testingDate = DateTime.now().withTime(0, 0, 0, 0).toString(fmt);
 	protected DateTime testCurrentDate = DateTime.now().withTime(11, 01, 0, 0);

@@ -23,13 +23,15 @@ import android.widget.Toast;
 
 public class LabViewActivity extends Activity implements View.OnClickListener {
 
-	TextView labName;
-	TextView labLocation;
-	TextView labAvailability;
-	TextView futureLabsTitle;
+	TextView labNameView;
+	TextView labLocationView;
+	TextView labAvailabilityView;
+	TextView futureLabsTitleView;
 	ImageButton reminderButton;
-	
-	String roomName;
+
+	LabTime primaryLab;
+	String labName;
+
 	Context mContext;
 
 	DateTimeFormatter fmt = new MainActivity().fmt;
@@ -39,15 +41,15 @@ public class LabViewActivity extends Activity implements View.OnClickListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.lab_full_view);
 		getActionBar().setDisplayHomeAsUpEnabled(true);
-		
+
 		mContext = getApplicationContext();
-		
-		reminderButton = (ImageButton)findViewById(R.id.reminder_button);
+
+		reminderButton = (ImageButton) findViewById(R.id.reminder_button);
 		reminderButton.setOnClickListener(this);
 
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
-			roomName = extras.getString("lab_name");
+			labName = extras.getString("lab_name");
 		}
 
 		fillLabContent();
@@ -55,8 +57,9 @@ public class LabViewActivity extends Activity implements View.OnClickListener {
 
 	@Override
 	public void onClick(View v) {
-		NotificationCreator.createScheduledNotification(mContext, 1);
-		Toast.makeText(LabViewActivity.this, "Reminder set for: ", Toast.LENGTH_LONG).show();
+		NotificationCreator.createScheduledNotification(mContext, primaryLab);
+		Toast.makeText(LabViewActivity.this, "Reminder set for: ",
+				Toast.LENGTH_LONG).show();
 	}
 
 	private void fillLabContent() {
@@ -67,50 +70,45 @@ public class LabViewActivity extends Activity implements View.OnClickListener {
 		// grouping as normal
 
 		ArrayList<LabTime> labs = SelectedLabsCreator.getFutureLabsByRoom(
-				getApplicationContext(), roomName, testCurrentDate);
+				getApplicationContext(), labName, testCurrentDate);
 
-		labName = (TextView) findViewById(R.id.lab_name);
-		labLocation = (TextView) findViewById(R.id.lab_location);
-		labAvailability = (TextView) findViewById(R.id.lab_availability);
-		futureLabsTitle = (TextView) findViewById(R.id.future_labs_header);
+		primaryLab = labs.get(0);
+
+		labNameView = (TextView) findViewById(R.id.lab_name);
+		labLocationView = (TextView) findViewById(R.id.lab_location);
+		labAvailabilityView = (TextView) findViewById(R.id.lab_availability);
+		futureLabsTitleView = (TextView) findViewById(R.id.future_labs_header);
 
 		periodUntilChange = new Period(testCurrentDate.withSecondOfMinute(0)
-				.withMillisOfSecond(0), labs.get(0).getUntilTime());
+				.withMillisOfSecond(0), primaryLab.getUntilTime());
 		String periodUntilStr = PeriodFormat.getDefault().print(
 				periodUntilChange);
-		
+
 		// General lab data
-		labName.setText(labs.get(0).getRoom());
-		labLocation.setText(labs.get(0).getLocation());
+		labNameView.setText(primaryLab.getRoom());
+		labLocationView.setText(primaryLab.getLocation());
 
 		if (labs.get(0).getAvailability()) {
-			labAvailability.setText("Available for "
-					+ periodUntilStr + ".");
-			
-			//reminderButton.setText("Notify me when becoming unavailable");
-			
+			labAvailabilityView
+					.setText("Available for " + periodUntilStr + ".");
 		} else {
-			labAvailability.setText("Unavailable for "
-					+ periodUntilStr + ".");
-			labAvailability.setTextColor(0xffff0000);
-			
-			//reminderButton.setText("Notify me when available");
-			
+			labAvailabilityView.setText("Unavailable for " + periodUntilStr
+					+ ".");
+			labAvailabilityView.setTextColor(0xffff0000);
 		}
-		
+
 		// Rest of lab's times as list for day
 		ArrayList<LabTime> restOfLabs = labsMinusFirstlab(labs);
-		
-		if(restOfLabs.isEmpty() == false){
+
+		if (restOfLabs.isEmpty() == false) {
 			final ListView lv = (ListView) findViewById(R.id.labListView);
 			lv.setAdapter(new LabCardSubOnlyBaseAdapter(this, restOfLabs));
-		}
-		else{
-			futureLabsTitle.setVisibility(View.GONE);
+		} else {
+			futureLabsTitleView.setVisibility(View.GONE);
 		}
 
 	}
-	
+
 	private ArrayList<LabTime> labsMinusFirstlab(ArrayList<LabTime> labs) {
 		labs.remove(0);
 		return labs;
