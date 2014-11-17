@@ -32,12 +32,14 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
-	DateTimeFormatter fmt = DateTimeFormat
+	protected DateTimeFormatter fmt = DateTimeFormat
 			.forPattern("YYYY-MM-dd HH:mm:ss.SSS");
-	String testingDate = "2014-10-27 00:00:00.000";
-	DateTime testCurrentDate = DateTime.parse("2014-10-27 11:05:00.000", fmt);
+	protected String testingDate = DateTime.now().withTime(0, 0, 0, 0).toString(fmt);
+	protected DateTime testCurrentDate = DateTime.now().withTime(11, 01, 0, 0);
 
-	private MenuItem menuItem;
+	protected MenuItem menuItem;
+	private Menu mOptionsMenu;
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +71,7 @@ public class MainActivity extends Activity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
+		mOptionsMenu = menu;
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
@@ -101,6 +104,9 @@ public class MainActivity extends Activity {
 		protected void onPostExecute(ArrayList<LabTime> labs) {
 			final ListView lv = (ListView) findViewById(R.id.labListView);
 			lv.setAdapter(new LabCardBaseAdapter(mContext, labs));
+			
+			mOptionsMenu.clear();
+			getMenuInflater().inflate(R.menu.main, mOptionsMenu);
 			Toast.makeText(mContext, "Labs times have been updated",
 					Toast.LENGTH_SHORT).show();
 		}

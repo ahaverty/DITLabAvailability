@@ -28,6 +28,7 @@
             android:parentActivityName="com.ditlabavailability.MainActivity"
             android:label="@string/single_lab_view_label" >
         </activity>
+        <receiver android:name="com.ditlabavailability.notifications.TimeAlarm" />
     </application>
 
 </manifest>

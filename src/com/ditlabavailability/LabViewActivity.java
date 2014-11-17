@@ -4,15 +4,16 @@ import java.util.ArrayList;
 
 import org.joda.time.DateTime;
 import org.joda.time.Period;
-import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.PeriodFormat;
 
 import com.ditlabavailability.adapters.LabCardSubOnlyBaseAdapter;
 import com.ditlabavailability.creator.SelectedLabsCreator;
 import com.ditlabavailability.model.LabTime;
+import com.ditlabavailability.notifications.NotificationCreator;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
@@ -29,15 +30,17 @@ public class LabViewActivity extends Activity implements View.OnClickListener {
 	ImageButton reminderButton;
 	
 	String roomName;
+	Context mContext;
 
-	DateTimeFormatter fmt = DateTimeFormat
-			.forPattern("YYYY-MM-dd HH:mm:ss.SSS");
-	DateTime testCurrentDate = DateTime.parse("2014-10-27 11:05:00.000", fmt);
+	DateTimeFormatter fmt = new MainActivity().fmt;
+	DateTime testCurrentDate = new MainActivity().testCurrentDate;
 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.lab_full_view);
 		getActionBar().setDisplayHomeAsUpEnabled(true);
+		
+		mContext = getApplicationContext();
 		
 		reminderButton = (ImageButton)findViewById(R.id.reminder_button);
 		reminderButton.setOnClickListener(this);
@@ -52,6 +55,7 @@ public class LabViewActivity extends Activity implements View.OnClickListener {
 
 	@Override
 	public void onClick(View v) {
+		NotificationCreator.createScheduledNotification(mContext, 1);
 		Toast.makeText(LabViewActivity.this, "Reminder set for: ", Toast.LENGTH_LONG).show();
 	}
 
