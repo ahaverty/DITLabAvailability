@@ -27,7 +27,7 @@ public class NotificationCreator extends Activity {
 		int id = (int) System.currentTimeMillis();
 		Intent intent = new Intent(mContext, TimeAlarm.class);
 		intent.putExtra("labName", lab.getRoom());
-		intent.putExtra("availability", lab.getAvailabilityStr());
+		intent.putExtra("availabilityBoolean", lab.getAvailability());
 		intent.putExtra("labUntilTimeHour", Integer.toString(lab.getUntilTime().getHourOfDay()));
 		
 		PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, id, intent, PendingIntent.FLAG_UPDATE_CURRENT);

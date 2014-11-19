@@ -1,6 +1,6 @@
 package com.ditlabavailability.notifications;
 
-import java.util.Locale;
+import java.math.BigInteger;
 
 import com.ditlabavailability.R;
 
@@ -10,9 +10,7 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 
-// The class has to extend the BroadcastReceiver to get the notification from the system
 public class TimeAlarm extends BroadcastReceiver {
 
 	@Override
@@ -20,12 +18,12 @@ public class TimeAlarm extends BroadcastReceiver {
 
 		String availabilityMessage;
 		String availLongMessage;
+		int notificationId;
 
 		String labName = paramIntent.getStringExtra("labName");
-		String labAvailability = paramIntent.getStringExtra("availability");
+		Boolean labAvailabilityBoolean = paramIntent.getBooleanExtra("availabilityBoolean", true);
 		String labUntilTimeHour = paramIntent.getStringExtra("labUntilTimeHour");
 
-		// Request the notification manager
 		NotificationManager notificationManager = (NotificationManager) mContext
 				.getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -36,16 +34,15 @@ public class TimeAlarm extends BroadcastReceiver {
 		// TODO: Notification should tap to bring to lab full view intent.
 		//intent.setData(data)
 
-		// Attach the intent to a pending intent
 		PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0,
 				intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-		if (labAvailability.toLowerCase(Locale.ENGLISH) == "available") {
-			availabilityMessage = "becoming available";
-			availLongMessage = "will be available at";
-		} else {
+		if (labAvailabilityBoolean) {
 			availabilityMessage = "becoming unavailable";
 			availLongMessage = "will become unavailable at";
+		} else {
+			availabilityMessage = "becoming available";
+			availLongMessage = "will be available at";
 		}
 
 		Notification noti = new Notification.Builder(mContext)
@@ -56,9 +53,21 @@ public class TimeAlarm extends BroadcastReceiver {
 								+ labUntilTimeHour + ":00")
 				.setSmallIcon(R.drawable.lab_availability_logo)
 				.setContentIntent(pendingIntent).build();
-
-		// Fire the notification
-		notificationManager.notify(1, noti);
+		
+		notificationId = getLabSpecificId(labName);
+		
+		//TODO create custom id's per lab room
+		notificationManager.notify(notificationId, noti);
+	}
+	
+	private int getLabSpecificId(String labName){
+		StringBuilder sb = new StringBuilder();
+		for (char c:labName.toCharArray())
+			sb.append((int)c);
+		
+		BigInteger bigId = new BigInteger(sb.toString());
+		int id = bigId.intValue();
+		return id;
 	}
 
 }
