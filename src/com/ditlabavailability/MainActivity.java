@@ -1,6 +1,7 @@
 package com.ditlabavailability;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -10,6 +11,7 @@ import com.ditlabavailability.adapters.LabCardBaseAdapter;
 import com.ditlabavailability.creator.LabCreator;
 import com.ditlabavailability.creator.SelectedLabsCreator;
 import com.ditlabavailability.data.DataPopulator;
+import com.ditlabavailability.data.FiltersDbManager;
 import com.ditlabavailability.data.LabTimesDbManager;
 import com.ditlabavailability.data.SelectedLabsDbManager;
 import com.ditlabavailability.helpers.Filterer;
@@ -49,9 +51,15 @@ public class MainActivity extends Activity {
 		ActionBar actionBar = getActionBar();
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME
 				| ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_SHOW_CUSTOM);
-
+		
+		// TODO create database for filtered data
+		
+		ArrayList<LabTime> labs =  refreshLabs();
+		
+		createFilterDatabase();
+		
 		final ListView lv = (ListView) findViewById(R.id.labListView);
-		lv.setAdapter(new LabCardBaseAdapter(this, refreshLabs()));
+		lv.setAdapter(new LabCardBaseAdapter(this, labs));
 
 		lv.setOnItemClickListener(new OnItemClickListener() {
 			@Override
@@ -118,6 +126,15 @@ public class MainActivity extends Activity {
 	private ArrayList<LabTime> refreshLabs() {
 		ceateDaysLabData();
 		return getLabs();
+	}
+	
+	private void createFilterDatabase() {
+		List<String> locationNames = new ArrayList<String>();
+		locationNames = new LabTimesDbManager(getApplicationContext()).getAllLocationNames();
+		
+		for(String location:locationNames){
+			new FiltersDbManager(getApplicationContext()).insertIntoFilterLocationsTable(location, true);
+		}
 	}
 
 	private void ceateDaysLabData() {

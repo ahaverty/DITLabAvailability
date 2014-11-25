@@ -39,8 +39,6 @@ public class DataPopulator {
 		db.createLab(new LabDetails("KA306", "Kevin Street"));
 		db.createLab(new LabDetails("KA311", "Kevin Street"));
 		
-		
-		
 		// Inserting Reservations in local DB
 		createLabInstance("AU101", 11);
 		createLabInstance("AU101", 12);
@@ -50,7 +48,6 @@ public class DataPopulator {
 		createLabInstance("KA305", 10);
 		createLabInstance("KA305", 15);
 		createLabInstance("KA311", 9);
-
 	}
 	
 	private static String createTimeStamp(int hourOfDay){

@@ -8,7 +8,6 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import com.ditlabavailability.model.LabDetails;
-import com.ditlabavailability.model.LabTime;
 import com.ditlabavailability.model.Reserved;
 
 import android.content.ContentValues;
@@ -104,7 +103,7 @@ public class LabTimesDbManager extends SQLiteOpenHelper {
 		String selectQuery = "SELECT  * FROM " + TABLE_LABS + " WHERE "
 				+ KEY_ROOM + " = " + roomName;
 
-		Log.e(LOG, selectQuery);
+		Log.i(LOG, selectQuery);
 
 		Cursor c = db.rawQuery(selectQuery, null);
 
@@ -125,7 +124,7 @@ public class LabTimesDbManager extends SQLiteOpenHelper {
 		List<LabDetails> labs = new ArrayList<LabDetails>();
 		String selectQuery = "SELECT * FROM " + TABLE_LABS;
 
-		Log.e(LOG, selectQuery);
+		Log.i(LOG, selectQuery);
 
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor c = db.rawQuery(selectQuery, null);
@@ -192,7 +191,7 @@ public class LabTimesDbManager extends SQLiteOpenHelper {
 		List<Reserved> labReservations = new ArrayList<Reserved>();
 		String selectQuery = "SELECT  * FROM " + TABLE_RESERVED;
 
-		Log.e(LOG, selectQuery);
+		Log.i(LOG, selectQuery);
 
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor c = db.rawQuery(selectQuery, null);
@@ -224,7 +223,7 @@ public class LabTimesDbManager extends SQLiteOpenHelper {
 				+ " WHERE datetime >= Datetime('" + fmt.print(dateBegin)
 				+ "') AND datetime <= Datetime('" + fmt.print(dateEnd) + "')";
 
-		Log.e(LOG, selectQuery);
+		Log.i(LOG, selectQuery);
 
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor c = db.rawQuery(selectQuery, null);
@@ -271,7 +270,7 @@ public class LabTimesDbManager extends SQLiteOpenHelper {
 		String selectQuery = "SELECT DISTINCT " + KEY_LOCATION + " FROM " + TABLE_LABS;
 		SQLiteDatabase db = this.getReadableDatabase();
 		
-		Log.e(LOG, selectQuery);
+		Log.i(LOG, selectQuery);
 		Cursor c = db.rawQuery(selectQuery, null);
 		
 		if (c.moveToFirst()) {

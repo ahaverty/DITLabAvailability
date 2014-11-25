@@ -132,7 +132,7 @@ public class SelectedLabsDbManager extends SQLiteOpenHelper {
 		ArrayList<LabTime> selectedLabs = new ArrayList<LabTime>();
 		String selectQuery = "SELECT  * FROM " + TABLE_S_LABTIME;
 
-		Log.e(LOG, selectQuery);
+		Log.i(LOG, selectQuery);
 
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor c = db.rawQuery(selectQuery, null);
@@ -155,7 +155,7 @@ public class SelectedLabsDbManager extends SQLiteOpenHelper {
 				+ KEY_UNTILTIME + " > Datetime('" + timeFrom.toString(fmt)
 				+ "') ORDER BY " + KEY_ROOM + " ASC, " + KEY_LABTIME + " ASC";
 
-		Log.e(LOG, selectQuery);
+		Log.i(LOG, selectQuery);
 
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor c = db.rawQuery(selectQuery, null);
@@ -190,7 +190,7 @@ public class SelectedLabsDbManager extends SQLiteOpenHelper {
 				+ " > Datetime('" + timeFrom.toString(fmt) + "') ORDER BY "
 				+ KEY_ROOM + " ASC, " + KEY_LABTIME + " ASC";
 
-		Log.e(LOG, selectQuery);
+		Log.i(LOG, selectQuery);
 
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor c = db.rawQuery(selectQuery, null);
