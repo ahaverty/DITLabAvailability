@@ -8,6 +8,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import com.ditlabavailability.model.LabDetails;
+import com.ditlabavailability.model.LabTime;
 import com.ditlabavailability.model.Reserved;
 
 import android.content.ContentValues;
@@ -19,7 +20,8 @@ import android.util.Log;
 
 public class LabTimesDbManager extends SQLiteOpenHelper {
 
-	DateTimeFormatter fmt = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss.SSS");
+	DateTimeFormatter fmt = DateTimeFormat
+			.forPattern("YYYY-MM-dd HH:mm:ss.SSS");
 
 	// Logcat tag
 	private static final String LOG = "LabTimesDbManager";
@@ -48,8 +50,6 @@ public class LabTimesDbManager extends SQLiteOpenHelper {
 			+ TABLE_RESERVED + "(" + KEY_ROOM + " TEXT, " + KEY_DATETIME
 			+ " DATETIME, " + "PRIMARY KEY (" + KEY_ROOM + ", " + KEY_DATETIME
 			+ "))";
-	
-	
 
 	public LabTimesDbManager(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -256,7 +256,7 @@ public class LabTimesDbManager extends SQLiteOpenHelper {
 		return db.update(TABLE_RESERVED, values, KEY_ROOM + " = ?",
 				new String[] { String.valueOf(reservation.getRoom()) });
 	}
-	
+
 	/**
 	 * Deleting a reservation
 	 */
@@ -264,6 +264,23 @@ public class LabTimesDbManager extends SQLiteOpenHelper {
 		SQLiteDatabase db = this.getWritableDatabase();
 		db.delete(TABLE_RESERVED, KEY_ROOM + " = ?",
 				new String[] { String.valueOf(lab_room) });
+	}
+
+	public List<String> getAllLocationNames() {
+		List<String> locationNames = new ArrayList<String>();
+		String selectQuery = "SELECT DISTINCT " + KEY_LOCATION + " FROM " + TABLE_LABS;
+		SQLiteDatabase db = this.getReadableDatabase();
+		
+		Log.e(LOG, selectQuery);
+		Cursor c = db.rawQuery(selectQuery, null);
+		
+		if (c.moveToFirst()) {
+			do {
+				locationNames.add(c.getString(0));
+			} while (c.moveToNext());
+		}
+
+		return locationNames;
 	}
 
 	// closing database

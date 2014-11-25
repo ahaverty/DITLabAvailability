@@ -34,12 +34,12 @@ public class MainActivity extends Activity {
 
 	public DateTimeFormatter fmt = DateTimeFormat
 			.forPattern("YYYY-MM-dd HH:mm:ss.SSS");
-	protected String testingDate = DateTime.now().withTime(0, 0, 0, 0).toString(fmt);
+	protected String testingDate = DateTime.now().withTime(0, 0, 0, 0)
+			.toString(fmt);
 	protected DateTime testCurrentDate = DateTime.now().withTime(11, 01, 0, 0);
 
 	protected MenuItem menuItem;
 	private Menu mOptionsMenu;
-
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +86,9 @@ public class MainActivity extends Activity {
 			RefreshLabsInBackground task = new RefreshLabsInBackground();
 			task.execute(getApplicationContext());
 			break;
+		case R.id.menu_filters:
+			Intent intent = new Intent(MainActivity.this, FilterActivity.class);
+			startActivity(intent);
 		default:
 			break;
 		}
@@ -104,7 +107,7 @@ public class MainActivity extends Activity {
 		protected void onPostExecute(ArrayList<LabTime> labs) {
 			final ListView lv = (ListView) findViewById(R.id.labListView);
 			lv.setAdapter(new LabCardBaseAdapter(mContext, labs));
-			
+
 			mOptionsMenu.clear();
 			getMenuInflater().inflate(R.menu.main, mOptionsMenu);
 			Toast.makeText(mContext, "Labs times have been updated",

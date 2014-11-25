@@ -7,5 +7,8 @@
     <string name="all_lab_view_label">All Labs</string>
     <string name="single_lab_view_label">Lab Details</string>
     <string name="future_labs_title">Upcoming:</string>
+    <string name="filter_view_label">Filter</string>
+    <string name="location_selection_header_label">Filter by location:</string>
+    <string name="favourite_switch_label">Only show favourites</string>
 
 </resources>

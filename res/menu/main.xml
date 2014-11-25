@@ -4,10 +4,10 @@
     tools:context="com.ditlabavailability.MainActivity" >
 
     <item
-        android:id="@+id/menu_settings"
+        android:id="@+id/menu_filters"
         android:orderInCategory="100"
         android:showAsAction="always"
-        android:title="Settings"
+        android:title="Filters"
         />
 
     <item
