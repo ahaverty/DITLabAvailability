@@ -25,6 +25,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -35,12 +36,15 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
+	// Logcat tag
+	private static final String LOG = "MainActivity";
+
 	public DateTimeFormatter fmt = DateTimeFormat
 			.forPattern("YYYY-MM-dd HH:mm:ss.SSS");
 	protected String testingDate = DateTime.now().withTime(0, 0, 0, 0)
 			.toString(fmt);
 	protected DateTime testCurrentDate = DateTime.now().withTime(11, 01, 0, 0);
-	
+
 	public static final String PREFS_NAME = "FilterPreferences";
 	SharedPreferences filterPreferences;
 	String KEY_ALL_FILTERS_ENABLED = "allFiltersEnabled";
@@ -56,22 +60,22 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.all_labs_main_view);
 
-		ActionBar actionBar = getActionBar();
-		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME
-				| ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_SHOW_CUSTOM);
-		
-		// Load Preferences
-		filterPreferences = getSharedPreferences(PREFS_NAME, 0);
-		allFiltersEnabled = filterPreferences.getBoolean(KEY_ALL_FILTERS_ENABLED, false);
-		favouritesEnabled = filterPreferences.getBoolean(KEY_FAVOURITES_ENABLED, false);
+		Log.i(LOG, "onCreate Called");
 
-		ArrayList<LabTime> labs = refreshLabs();
-
+		createActionBar();
+		ceateDaysLabData();
+		getLabs();
 		createFilterDatabase();
+	}
 
+	protected void onResume() {
+		super.onResume();
+
+		loadFilterPreferences();
+
+		// Setup main list of labs
 		final ListView lv = (ListView) findViewById(R.id.labListView);
-		lv.setAdapter(new LabCardBaseAdapter(this, labs));
-
+		lv.setAdapter(new LabCardBaseAdapter(getBaseContext(), refreshLabs()));
 		lv.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> a, View v, int position,
@@ -85,7 +89,6 @@ public class MainActivity extends Activity {
 				startActivity(intent);
 			}
 		});
-
 	}
 
 	@Override
@@ -114,12 +117,27 @@ public class MainActivity extends Activity {
 		return true;
 	}
 
+	private void createActionBar() {
+		ActionBar actionBar = getActionBar();
+		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME
+				| ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_SHOW_CUSTOM);
+	}
+
+	public void loadFilterPreferences() {
+		filterPreferences = getSharedPreferences(PREFS_NAME, 0);
+		allFiltersEnabled = filterPreferences.getBoolean(
+				KEY_ALL_FILTERS_ENABLED, false);
+		favouritesEnabled = filterPreferences.getBoolean(
+				KEY_FAVOURITES_ENABLED, false);
+	}
+
 	private class RefreshLabsInBackground extends
 			AsyncTask<Context, Void, ArrayList<LabTime>> {
 		private Context mContext;
 
 		protected ArrayList<LabTime> doInBackground(Context... context) {
 			mContext = context[0];
+			Log.i(LOG, "doInBackground Called");
 			return refreshLabs();
 		}
 
@@ -135,19 +153,27 @@ public class MainActivity extends Activity {
 	};
 
 	private ArrayList<LabTime> refreshLabs() {
+		Log.i(LOG, "refreshLabs Called");
 		ceateDaysLabData();
 		return getLabs();
 	}
 
 	private void createFilterDatabase() {
+		Log.i(LOG, "createFilterDatabase Called");
 		List<String> locationNames = new ArrayList<String>();
-		locationNames = new LabTimesDbManager(getApplicationContext())
-				.getAllLocationNames();
+		FiltersDbManager dbFilters = new FiltersDbManager(
+				getApplicationContext());
+		LabTimesDbManager dbLabTimes = new LabTimesDbManager(
+				getApplicationContext());
+		locationNames = dbLabTimes.getAllLocationNames();
 
 		for (String location : locationNames) {
 			new FiltersDbManager(getApplicationContext())
 					.insertIntoFilterLocationsTable(location, true);
 		}
+
+		dbLabTimes.closeDB();
+		dbFilters.closeDB();
 	}
 
 	private void ceateDaysLabData() {
@@ -179,16 +205,15 @@ public class MainActivity extends Activity {
 		SelectedLabsDbManager dbSelected;
 		dbSelected = new SelectedLabsDbManager(getApplicationContext());
 		ArrayList<LabTime> labTimesGroupFuture;
-		
-		if(allFiltersEnabled){
+
+		if (allFiltersEnabled) {
 			labTimesGroupFuture = SelectedLabsCreator
 					.getLabsAfterTimeWithFilters(testCurrentDate);
-		}
-		else{
+		} else {
 			labTimesGroupFuture = SelectedLabsCreator
 					.getLabsAfterTime(testCurrentDate);
 		}
-		
+
 		dbSelected.close();
 
 		ArrayList<LabTime> labTimesFltrAvail = Filterer

@@ -74,15 +74,20 @@ public class FiltersDbManager extends SQLiteOpenHelper {
 		String selectQuery = "SELECT " + KEY_STATUS + " FROM "
 				+ TABLE_FILTER_LOCATIONS + " WHERE " + KEY_LOCATION + " LIKE '"
 				+ location + "'";
+		boolean status;
 
 		Log.i(LOG, selectQuery);
 		Cursor c = db.rawQuery(selectQuery, null);
 
-		if (c != null)
-			c.moveToFirst();
-
-		boolean status = getStatusBooleanFromInt(c.getInt(0));
-
+		if (c.moveToFirst()){
+			status = getStatusBooleanFromInt(c.getInt(c.getColumnIndex(KEY_STATUS)));
+		}
+		else{
+			Log.w(LOG, "getLocationStatus Cursor is null. FilterDatabase possibly not created yet.");
+			Log.e(LOG, "Returning false");
+			return false;
+		}
+		
 		return status;
 	}
 

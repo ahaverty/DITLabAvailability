@@ -25,6 +25,9 @@ public class FilterActivity extends Activity {
 	LinearLayout filterLinear;
 	OnClickListener checkBoxListener;
 	
+	// Logcat tag
+	private static final String LOG = "FilterActivity";
+	
 	public static final String PREFS_NAME = "FilterPreferences";
 	SharedPreferences filterPreferences;
 	String KEY_ALL_FILTERS_ENABLED = "allFiltersEnabled";
@@ -39,7 +42,7 @@ public class FilterActivity extends Activity {
 		
 		// Load Preferences
 		filterPreferences = getSharedPreferences(PREFS_NAME, 0);
-		allFiltersEnabled = filterPreferences.getBoolean(KEY_ALL_FILTERS_ENABLED, false);
+		allFiltersEnabled = filterPreferences.getBoolean(KEY_ALL_FILTERS_ENABLED, true);
 		favouritesEnabled = filterPreferences.getBoolean(KEY_FAVOURITES_ENABLED, false);
 		
 		Switch filtersOnOffSwitch = (Switch)  findViewById(R.id.filters_onoff_switch);
@@ -48,7 +51,16 @@ public class FilterActivity extends Activity {
 
 		@Override
 		public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-		    Log.v("Switch State=", ""+isChecked);
+			LinearLayout restOfFiltersWrapper = (LinearLayout) findViewById(R.id.rest_filters_wrapper);
+			
+			if(isChecked){
+				restOfFiltersWrapper.setVisibility(View.VISIBLE);
+			}
+			else{
+				restOfFiltersWrapper.setVisibility(View.GONE);
+			}
+			
+			Log.v("Switch State = ", ""+isChecked);
 		    allFiltersEnabled = isChecked;
 		    SharedPreferences.Editor editor = filterPreferences.edit();
 		    editor.putBoolean(KEY_ALL_FILTERS_ENABLED, allFiltersEnabled);
@@ -75,6 +87,7 @@ public class FilterActivity extends Activity {
 	}
 	
 	private void addCheckbox(int number, String label, boolean status) {
+		Log.i(LOG,"Starting addCheckbox");
 		CheckBox checkBox = new CheckBox(this);
 		checkBox.setId(number);
 		checkBox.setText(label);
@@ -88,12 +101,10 @@ public class FilterActivity extends Activity {
 			}
         });
 		filterLinear.addView(checkBox);
+		Log.i(LOG,"Ending addCheckbox");
     }
 	
 	private void updateLocationStatus(String location, boolean status) {
 		new FiltersDbManager(mContext).updateLocationStatus(location, status);
 	}
-	
-	
-	
 }
