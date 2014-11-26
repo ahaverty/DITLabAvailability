@@ -35,6 +35,8 @@ public class FilterActivity extends Activity {
 	boolean allFiltersEnabled;
 	boolean favouritesEnabled;
 	
+	private LinearLayout restOfFiltersWrapper;
+	
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.filter_view);
@@ -42,31 +44,35 @@ public class FilterActivity extends Activity {
 		
 		// Load Preferences
 		filterPreferences = getSharedPreferences(PREFS_NAME, 0);
-		allFiltersEnabled = filterPreferences.getBoolean(KEY_ALL_FILTERS_ENABLED, true);
+		allFiltersEnabled = filterPreferences.getBoolean(KEY_ALL_FILTERS_ENABLED, false);
 		favouritesEnabled = filterPreferences.getBoolean(KEY_FAVOURITES_ENABLED, false);
 		
+		restOfFiltersWrapper = (LinearLayout) findViewById(R.id.rest_filters_wrapper);
 		Switch filtersOnOffSwitch = (Switch)  findViewById(R.id.filters_onoff_switch);
 		filtersOnOffSwitch.setChecked(allFiltersEnabled);
+		if(allFiltersEnabled == false){
+			restOfFiltersWrapper.setVisibility(View.GONE);
+		}
 		filtersOnOffSwitch.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
-		@Override
-		public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-			LinearLayout restOfFiltersWrapper = (LinearLayout) findViewById(R.id.rest_filters_wrapper);
-			
-			if(isChecked){
-				restOfFiltersWrapper.setVisibility(View.VISIBLE);
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				
+				
+				if(isChecked){
+					restOfFiltersWrapper.setVisibility(View.VISIBLE);
+				}
+				else{
+					restOfFiltersWrapper.setVisibility(View.GONE);
+				}
+				
+				Log.v("Switch State = ", ""+isChecked);
+			    allFiltersEnabled = isChecked;
+			    SharedPreferences.Editor editor = filterPreferences.edit();
+			    editor.putBoolean(KEY_ALL_FILTERS_ENABLED, allFiltersEnabled);
+			    editor.putBoolean(KEY_FAVOURITES_ENABLED, favouritesEnabled);
+			    editor.commit();
 			}
-			else{
-				restOfFiltersWrapper.setVisibility(View.GONE);
-			}
-			
-			Log.v("Switch State = ", ""+isChecked);
-		    allFiltersEnabled = isChecked;
-		    SharedPreferences.Editor editor = filterPreferences.edit();
-		    editor.putBoolean(KEY_ALL_FILTERS_ENABLED, allFiltersEnabled);
-		    editor.putBoolean(KEY_FAVOURITES_ENABLED, favouritesEnabled);
-		    editor.commit();
-		}       
 
 		});
 		

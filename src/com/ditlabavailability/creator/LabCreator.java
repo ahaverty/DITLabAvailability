@@ -31,7 +31,6 @@ public class LabCreator {
 		boolean availability;
 
 		for (LabDetails lab : allLabs) {
-			Log.d("Lab Name", lab.getRoom());
 
 			for (int i = dayStart; i <= dayEnd; i++) {
 				room = lab.getRoom();
@@ -48,10 +47,6 @@ public class LabCreator {
 				allLabInstances.add(new LabTime(room, labDatetime, location,
 						availability));
 			}
-		}
-
-		for (LabTime lt : allLabInstances) {
-			Log.d("Lab Time", lt.toString());
 		}
 		return allLabInstances;
 

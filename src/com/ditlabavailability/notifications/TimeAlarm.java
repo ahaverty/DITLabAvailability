@@ -10,6 +10,8 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
 public class TimeAlarm extends BroadcastReceiver {
 
@@ -44,14 +46,17 @@ public class TimeAlarm extends BroadcastReceiver {
 			availabilityMessage = "becoming available";
 			availLongMessage = "will be available at";
 		}
-
+		
+		Bitmap largeIcon = BitmapFactory.decodeResource(null, R.drawable.lab_availability_logo);
+		
 		Notification noti = new Notification.Builder(mContext)
 				.setPriority(200)
 				.setContentTitle("Lab " + availabilityMessage)
 				.setContentText(
 						labName + " " + availLongMessage + " "
 								+ labUntilTimeHour + ":00")
-				.setSmallIcon(R.drawable.lab_availability_logo)
+				.setSmallIcon(R.drawable.lab_availability_notification_logo)
+				.setLargeIcon(largeIcon)
 				.setContentIntent(pendingIntent).build();
 		
 		notificationId = getLabSpecificId(labName);

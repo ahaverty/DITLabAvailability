@@ -58,7 +58,7 @@ public class LabViewActivity extends Activity implements View.OnClickListener {
 	@Override
 	public void onClick(View v) {
 		NotificationCreator.createScheduledNotification(mContext, primaryLab);
-		Toast.makeText(LabViewActivity.this, "Reminder set for: ",
+		Toast.makeText(LabViewActivity.this, "Reminder set for " + primaryLab.getUntilHourStr(),
 				Toast.LENGTH_LONG).show();
 	}
 

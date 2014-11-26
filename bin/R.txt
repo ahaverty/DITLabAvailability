@@ -244,7 +244,8 @@ int drawable ic_action_refresh_dark 0x7f020059
 int drawable ic_action_refresh_white 0x7f02005a
 int drawable ic_launcher 0x7f02005b
 int drawable lab_availability_logo 0x7f02005c
-int drawable reminder_button_round 0x7f02005d
+int drawable lab_availability_notification_logo 0x7f02005d
+int drawable reminder_button_round 0x7f02005e
 int id action_bar 0x7f05001c
 int id action_bar_activity_content 0x7f050015
 int id action_bar_container 0x7f05001b

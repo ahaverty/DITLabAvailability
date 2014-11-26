@@ -1,9 +1,6 @@
 package com.ditlabavailability.data;
 
 import java.util.ArrayList;
-import java.util.List;
-
-import com.ditlabavailability.model.LabTime;
 
 import android.content.ContentValues;
 import android.content.Context;
