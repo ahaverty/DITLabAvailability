@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import com.ditlabavailability.adapters.LabCardBaseAdapter;
@@ -14,6 +13,8 @@ import com.ditlabavailability.data.DataPopulator;
 import com.ditlabavailability.data.FiltersDbManager;
 import com.ditlabavailability.data.LabTimesDbManager;
 import com.ditlabavailability.data.SelectedLabsDbManager;
+import com.ditlabavailability.helpers.Constants;
+import com.ditlabavailability.helpers.FilterPreferences;
 import com.ditlabavailability.helpers.Filterer;
 import com.ditlabavailability.helpers.LabGrouper;
 import com.ditlabavailability.model.LabTime;
@@ -22,7 +23,6 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -39,18 +39,16 @@ public class MainActivity extends Activity {
 	// Logcat tag
 	private static final String LOG = "MainActivity";
 
-	public DateTimeFormatter fmt = DateTimeFormat
-			.forPattern("YYYY-MM-dd HH:mm:ss.SSS");
+	DateTimeFormatter fmt = Constants.FMT;
 	protected String testingDate = DateTime.now().withTime(0, 0, 0, 0)
 			.toString(fmt);
-	protected DateTime testCurrentDate = DateTime.now().withTime(11, 01, 0, 0);
+	DateTime testCurrentDate;
 
-	public static final String PREFS_NAME = "FilterPreferences";
-	SharedPreferences filterPreferences;
-	String KEY_ALL_FILTERS_ENABLED = "allFiltersEnabled";
-	String KEY_FAVOURITES_ENABLED = "favouritesEnabled";
+	private FilterPreferences filterPreferences;
 	boolean allFiltersEnabled;
 	boolean favouritesEnabled;
+	int demoTimeHour;
+	int demoTimeMinute;
 
 	protected MenuItem menuItem;
 	private Menu mOptionsMenu;
@@ -62,6 +60,9 @@ public class MainActivity extends Activity {
 
 		Log.i(LOG, "onCreate Called");
 
+		loadPreferences();
+		setCurrentDateAndTime();
+
 		createActionBar();
 		ceateDaysLabData();
 		getLabs();
@@ -71,7 +72,8 @@ public class MainActivity extends Activity {
 	protected void onResume() {
 		super.onResume();
 
-		loadFilterPreferences();
+		loadPreferences();
+		setCurrentDateAndTime();
 
 		// Setup main list of labs
 		final ListView lv = (ListView) findViewById(R.id.labListView);
@@ -123,12 +125,18 @@ public class MainActivity extends Activity {
 				| ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_SHOW_CUSTOM);
 	}
 
-	public void loadFilterPreferences() {
-		filterPreferences = getSharedPreferences(PREFS_NAME, 0);
-		allFiltersEnabled = filterPreferences.getBoolean(
-				KEY_ALL_FILTERS_ENABLED, false);
-		favouritesEnabled = filterPreferences.getBoolean(
-				KEY_FAVOURITES_ENABLED, false);
+	private void loadPreferences() {
+		// Load Preferences
+		filterPreferences = new FilterPreferences(getApplicationContext());
+		allFiltersEnabled = filterPreferences.isAllFiltersEnabled();
+		favouritesEnabled = filterPreferences.isFavouritesEnabled();
+		demoTimeHour = filterPreferences.getDemoTimeHour();
+		demoTimeMinute = filterPreferences.getDemoTimeMinute();
+	}
+
+	private void setCurrentDateAndTime() {
+		testCurrentDate = DateTime.now().withTime(demoTimeHour, demoTimeMinute,
+				0, 0);
 	}
 
 	private class RefreshLabsInBackground extends
@@ -185,7 +193,6 @@ public class MainActivity extends Activity {
 		DataPopulator.populate(dbLabTimes);
 		dbLabTimes.close();
 
-		// TODO create filteredTimestamp using filter activity
 		DateTime filteredTimestamp = DateTime.parse(testingDate, fmt);
 
 		ArrayList<LabTime> initialLabTimes = LabCreator.createAllLabInstances(

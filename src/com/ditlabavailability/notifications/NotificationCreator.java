@@ -4,7 +4,7 @@ import java.util.Calendar;
 
 import org.joda.time.format.DateTimeFormatter;
 
-import com.ditlabavailability.MainActivity;
+import com.ditlabavailability.helpers.Constants;
 import com.ditlabavailability.model.LabTime;
 
 import android.app.Activity;
@@ -15,7 +15,7 @@ import android.content.Intent;
 
 public class NotificationCreator extends Activity {
 	
-	static DateTimeFormatter fmt = new MainActivity().fmt;
+	DateTimeFormatter fmt = Constants.FMT;
 	
 	public static void createScheduledNotification(Context mContext, LabTime lab)
 	{

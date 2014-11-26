@@ -9,14 +9,14 @@
 	
     <Switch
         android:id="@+id/filters_onoff_switch"
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="@string/filters_onoff_switch_label" />
     
     <LinearLayout
 	    android:id="@+id/rest_filters_wrapper"
 	    android:layout_width="fill_parent"
-	    android:layout_height="fill_parent"
+	    android:layout_height="wrap_content"
 	    android:orientation="vertical">
     
 	    <TextView
@@ -43,5 +43,18 @@
 	        android:text="@string/favourite_switch_label" />
     
     </LinearLayout>
+    
+    <TextView
+	        android:id="@+id/demo_time_picker_header"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_marginTop="20dp"
+	        android:text="@string/demo_time_picker_label"
+	        android:textAppearance="?android:attr/textAppearanceMedium" />
+    
+	<TimePicker
+	        android:id="@+id/demoTimePicker"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content" />    
 
 </LinearLayout>

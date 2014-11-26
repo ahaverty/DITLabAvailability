@@ -9,6 +9,8 @@ import org.joda.time.format.PeriodFormat;
 
 import com.ditlabavailability.adapters.LabCardSubOnlyBaseAdapter;
 import com.ditlabavailability.creator.SelectedLabsCreator;
+import com.ditlabavailability.helpers.Constants;
+import com.ditlabavailability.helpers.FilterPreferences;
 import com.ditlabavailability.model.LabTime;
 import com.ditlabavailability.notifications.NotificationCreator;
 
@@ -34,8 +36,14 @@ public class LabViewActivity extends Activity implements View.OnClickListener {
 
 	Context mContext;
 
-	DateTimeFormatter fmt = new MainActivity().fmt;
-	DateTime testCurrentDate = new MainActivity().testCurrentDate;
+	private FilterPreferences filterPreferences;
+	boolean allFiltersEnabled;
+	boolean favouritesEnabled;
+	int demoTimeHour;
+	int demoTimeMinute;
+
+	DateTimeFormatter fmt = Constants.FMT;
+	DateTime testCurrentDate;
 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -43,6 +51,9 @@ public class LabViewActivity extends Activity implements View.OnClickListener {
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 
 		mContext = getApplicationContext();
+
+		loadPreferences();
+		setCurrentDateAndTime();
 
 		reminderButton = (ImageButton) findViewById(R.id.reminder_button);
 		reminderButton.setOnClickListener(this);
@@ -58,16 +69,28 @@ public class LabViewActivity extends Activity implements View.OnClickListener {
 	@Override
 	public void onClick(View v) {
 		NotificationCreator.createScheduledNotification(mContext, primaryLab);
-		Toast.makeText(LabViewActivity.this, "Reminder set for " + primaryLab.getUntilHourStr(),
+		Toast.makeText(LabViewActivity.this,
+				"Reminder set for " + primaryLab.getUntilHourStr(),
 				Toast.LENGTH_LONG).show();
+	}
+
+	private void loadPreferences() {
+		// Load Preferences
+		filterPreferences = new FilterPreferences(mContext);
+		allFiltersEnabled = filterPreferences.isAllFiltersEnabled();
+		favouritesEnabled = filterPreferences.isFavouritesEnabled();
+		demoTimeHour = filterPreferences.getDemoTimeHour();
+		demoTimeMinute = filterPreferences.getDemoTimeMinute();
+	}
+
+	private void setCurrentDateAndTime() {
+		testCurrentDate = DateTime.now().withTime(demoTimeHour, demoTimeMinute,
+				0, 0);
 	}
 
 	private void fillLabContent() {
 
 		Period periodUntilChange;
-
-		// TODO get array of labs for this lab name, filtering out past labs and
-		// grouping as normal
 
 		ArrayList<LabTime> labs = SelectedLabsCreator.getFutureLabsByRoom(
 				getApplicationContext(), labName, testCurrentDate);

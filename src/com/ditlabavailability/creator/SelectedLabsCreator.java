@@ -36,6 +36,8 @@ public class SelectedLabsCreator {
 	
 	static public ArrayList<LabTime> getFutureLabsByRoom(Context context, String roomName, DateTime timeFrom){
 		dbSelected = new SelectedLabsDbManager(context);
-		return dbSelected.getFutureLabsByRoom(roomName, timeFrom);
+		ArrayList<LabTime> labs = dbSelected.getFutureLabsByRoom(roomName, timeFrom);
+		dbSelected.closeDB();
+		return labs;
 	}
 }
