@@ -22,6 +22,7 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
@@ -39,6 +40,13 @@ public class MainActivity extends Activity {
 	protected String testingDate = DateTime.now().withTime(0, 0, 0, 0)
 			.toString(fmt);
 	protected DateTime testCurrentDate = DateTime.now().withTime(11, 01, 0, 0);
+	
+	public static final String PREFS_NAME = "FilterPreferences";
+	SharedPreferences filterPreferences;
+	String KEY_ALL_FILTERS_ENABLED = "allFiltersEnabled";
+	String KEY_FAVOURITES_ENABLED = "favouritesEnabled";
+	boolean allFiltersEnabled;
+	boolean favouritesEnabled;
 
 	protected MenuItem menuItem;
 	private Menu mOptionsMenu;
@@ -51,6 +59,11 @@ public class MainActivity extends Activity {
 		ActionBar actionBar = getActionBar();
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME
 				| ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_SHOW_CUSTOM);
+		
+		// Load Preferences
+		filterPreferences = getSharedPreferences(PREFS_NAME, 0);
+		allFiltersEnabled = filterPreferences.getBoolean(KEY_ALL_FILTERS_ENABLED, false);
+		favouritesEnabled = filterPreferences.getBoolean(KEY_FAVOURITES_ENABLED, false);
 
 		ArrayList<LabTime> labs = refreshLabs();
 
@@ -165,9 +178,17 @@ public class MainActivity extends Activity {
 	private ArrayList<LabTime> getLabs() {
 		SelectedLabsDbManager dbSelected;
 		dbSelected = new SelectedLabsDbManager(getApplicationContext());
-		// TODO add (if filters == true) loop
-		ArrayList<LabTime> labTimesGroupFuture = SelectedLabsCreator
-				.getLabsAfterTimeWithFilters(testCurrentDate);
+		ArrayList<LabTime> labTimesGroupFuture;
+		
+		if(allFiltersEnabled){
+			labTimesGroupFuture = SelectedLabsCreator
+					.getLabsAfterTimeWithFilters(testCurrentDate);
+		}
+		else{
+			labTimesGroupFuture = SelectedLabsCreator
+					.getLabsAfterTime(testCurrentDate);
+		}
+		
 		dbSelected.close();
 
 		ArrayList<LabTime> labTimesFltrAvail = Filterer

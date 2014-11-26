@@ -8,11 +8,16 @@ import com.ditlabavailability.data.LabTimesDbManager;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.LinearLayout;
+import android.widget.Switch;
 
 public class FilterActivity extends Activity {
 
@@ -20,10 +25,38 @@ public class FilterActivity extends Activity {
 	LinearLayout filterLinear;
 	OnClickListener checkBoxListener;
 	
+	public static final String PREFS_NAME = "FilterPreferences";
+	SharedPreferences filterPreferences;
+	String KEY_ALL_FILTERS_ENABLED = "allFiltersEnabled";
+	String KEY_FAVOURITES_ENABLED = "favouritesEnabled";
+	boolean allFiltersEnabled;
+	boolean favouritesEnabled;
+	
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.filter_view);
 		getActionBar().setDisplayHomeAsUpEnabled(true);
+		
+		// Load Preferences
+		filterPreferences = getSharedPreferences(PREFS_NAME, 0);
+		allFiltersEnabled = filterPreferences.getBoolean(KEY_ALL_FILTERS_ENABLED, false);
+		favouritesEnabled = filterPreferences.getBoolean(KEY_FAVOURITES_ENABLED, false);
+		
+		Switch filtersOnOffSwitch = (Switch)  findViewById(R.id.filters_onoff_switch);
+		filtersOnOffSwitch.setChecked(allFiltersEnabled);
+		filtersOnOffSwitch.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+
+		@Override
+		public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+		    Log.v("Switch State=", ""+isChecked);
+		    allFiltersEnabled = isChecked;
+		    SharedPreferences.Editor editor = filterPreferences.edit();
+		    editor.putBoolean(KEY_ALL_FILTERS_ENABLED, allFiltersEnabled);
+		    editor.putBoolean(KEY_FAVOURITES_ENABLED, favouritesEnabled);
+		    editor.commit();
+		}       
+
+		});
 		
 		filterLinear = (LinearLayout) findViewById(R.id.location_selection);
 		mContext = getApplicationContext();

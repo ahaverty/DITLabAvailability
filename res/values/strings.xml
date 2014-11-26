@@ -10,5 +10,6 @@
     <string name="filter_view_label">Filter</string>
     <string name="location_selection_header_label">Filter by location:</string>
     <string name="favourite_switch_label">Only show favourites</string>
+    <string name="filters_onoff_switch_label">All filters</string>
 
 </resources>

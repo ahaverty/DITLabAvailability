@@ -6,11 +6,18 @@
     android:background="@color/app_background"
     android:orientation="vertical"
     android:padding="15dp" >
-
+	
+    <Switch
+        android:id="@+id/filters_onoff_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/filters_onoff_switch_label" />
+    
     <TextView
         android:id="@+id/location_selection_header"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
         android:text="@string/location_selection_header_label"
         android:textAppearance="?android:attr/textAppearanceMedium" />
     
