@@ -30,6 +30,10 @@ public class SelectedLabsCreator {
 		return dbSelected.getLabsAfterTime(timeFrom);
 	}
 	
+	static public ArrayList<LabTime> getLabsAfterTimeWithFilters(DateTime timeFrom){
+		return dbSelected.getLabsAfterTimeWithFilters(timeFrom);
+	}
+	
 	static public ArrayList<LabTime> getFutureLabsByRoom(Context context, String roomName, DateTime timeFrom){
 		dbSelected = new SelectedLabsDbManager(context);
 		return dbSelected.getFutureLabsByRoom(roomName, timeFrom);

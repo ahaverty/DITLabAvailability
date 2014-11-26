@@ -19,6 +19,7 @@ public class SelectedLabsDbManager extends SQLiteOpenHelper {
 
 	DateTimeFormatter fmt = DateTimeFormat
 			.forPattern("YYYY-MM-dd HH:mm:ss.SSS");
+	private Context mContext;
 
 	// Logcat tag
 	private static final String LOG = "SelectedLabsDbManager";
@@ -47,22 +48,18 @@ public class SelectedLabsDbManager extends SQLiteOpenHelper {
 
 	public SelectedLabsDbManager(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
+		this.mContext = context;
 	}
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-
-		// creating required tables
 		db.execSQL(CREATE_TABLE_S_LABTIME);
 
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		// on upgrade drop older tables
 		db.execSQL("DROP TABLE IF EXISTS " + CREATE_TABLE_S_LABTIME);
-
-		// create new tables
 		onCreate(db);
 	}
 
@@ -85,7 +82,6 @@ public class SelectedLabsDbManager extends SQLiteOpenHelper {
 		return labs;
 	}
 
-	// closing database
 	public void closeDB() {
 		SQLiteDatabase db = this.getReadableDatabase();
 		if (db != null && db.isOpen())
@@ -116,7 +112,6 @@ public class SelectedLabsDbManager extends SQLiteOpenHelper {
 		values.put(KEY_LOCATION, lab.getLocation());
 		values.put(KEY_AVAILABILITY, lab.getAvailabilityInt());
 
-		// insert row
 		long lab_id = db.insert(TABLE_S_LABTIME, null, values);
 
 		return lab_id;
@@ -164,7 +159,46 @@ public class SelectedLabsDbManager extends SQLiteOpenHelper {
 
 		return selectedLabs;
 	}
-	
+
+	/**
+	 * 
+	 * @param timeFrom
+	 * @return array of labs with filters, occurring after or during specified
+	 *         time, ordered by room name and time.
+	 */
+	public ArrayList<LabTime> getLabsAfterTimeWithFilters(DateTime timeFrom) {
+		ArrayList<LabTime> selectedLabs = new ArrayList<LabTime>();
+
+		// where location in location_filter table and status = 1
+		ArrayList<String> enabledLocations = new FiltersDbManager(mContext)
+				.getAllStatusTrueLocations();
+
+		String enabledLocationsFormatted = "";
+		for (String location : enabledLocations) {
+			enabledLocationsFormatted += "'" + location + "'";
+			// if not at last element of enabled locations
+			// then add comma and space
+			if (enabledLocations.indexOf(location) < enabledLocations.size() - 1) {
+				enabledLocationsFormatted += ", ";
+			}
+		}
+
+		String selectQuery = "SELECT  * FROM " + TABLE_S_LABTIME + " WHERE "
+				+ KEY_UNTILTIME + " > Datetime('" + timeFrom.toString(fmt)
+				+ "') AND " + KEY_LOCATION + " IN ( "
+				+ enabledLocationsFormatted + " ) ORDER BY " + KEY_ROOM
+				+ " ASC, " + KEY_LABTIME + " ASC";
+
+		Log.i(LOG, selectQuery);
+
+		SQLiteDatabase db = this.getReadableDatabase();
+		Cursor c = db.rawQuery(selectQuery, null);
+
+		selectedLabs = retrieveLabData(c);
+
+		return selectedLabs;
+	}
+
 	/**
 	 * 
 	 * @param timeFrom
@@ -175,16 +209,17 @@ public class SelectedLabsDbManager extends SQLiteOpenHelper {
 		DateTime timeFrom = DateTime.now();
 		return getFutureLabsByRoom(roomName, timeFrom);
 	}
-	
+
 	/**
 	 * 
 	 * @param timeFrom
 	 * @return array of labs, occurring after or during specified time, ordered
 	 *         by room name and time.
 	 */
-	public ArrayList<LabTime> getFutureLabsByRoom(String roomName, DateTime timeFrom) {
+	public ArrayList<LabTime> getFutureLabsByRoom(String roomName,
+			DateTime timeFrom) {
 		ArrayList<LabTime> selectedLabs = new ArrayList<LabTime>();
-		
+
 		String selectQuery = "SELECT * FROM " + TABLE_S_LABTIME + " WHERE "
 				+ KEY_ROOM + " = '" + roomName + "' AND " + KEY_UNTILTIME
 				+ " > Datetime('" + timeFrom.toString(fmt) + "') ORDER BY "

@@ -1,5 +1,10 @@
 package com.ditlabavailability.data;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.ditlabavailability.model.LabTime;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -90,6 +95,27 @@ public class FiltersDbManager extends SQLiteOpenHelper {
 
 		db.update(TABLE_FILTER_LOCATIONS, values, KEY_LOCATION + " = ?",
 				new String[] { location });
+	}
+	
+	/**
+	 * Get all lab location names that are currently enabled in the filter location table
+	 * @return ArrayList of location string names
+	 */
+	public ArrayList<String> getAllStatusTrueLocations() {
+		ArrayList<String> enabledLocations = new ArrayList<String>();
+		String selectQuery = "SELECT " + KEY_LOCATION + " FROM " + TABLE_FILTER_LOCATIONS + " WHERE " + KEY_STATUS + " = 1";
+		Log.i(LOG, selectQuery);
+
+		SQLiteDatabase db = this.getReadableDatabase();
+		Cursor c = db.rawQuery(selectQuery, null);
+		
+		if (c.moveToFirst()) {
+			do {
+				enabledLocations.add(c.getString(c.getColumnIndex(KEY_LOCATION)));
+			} while (c.moveToNext());
+		}
+		
+		return enabledLocations;
 	}
 
 	private int setStatusToInt(boolean status) {

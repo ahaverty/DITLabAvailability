@@ -51,13 +51,11 @@ public class MainActivity extends Activity {
 		ActionBar actionBar = getActionBar();
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME
 				| ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_SHOW_CUSTOM);
-		
-		// TODO create database for filtered data
-		
-		ArrayList<LabTime> labs =  refreshLabs();
-		
+
+		ArrayList<LabTime> labs = refreshLabs();
+
 		createFilterDatabase();
-		
+
 		final ListView lv = (ListView) findViewById(R.id.labListView);
 		lv.setAdapter(new LabCardBaseAdapter(this, labs));
 
@@ -127,13 +125,15 @@ public class MainActivity extends Activity {
 		ceateDaysLabData();
 		return getLabs();
 	}
-	
+
 	private void createFilterDatabase() {
 		List<String> locationNames = new ArrayList<String>();
-		locationNames = new LabTimesDbManager(getApplicationContext()).getAllLocationNames();
-		
-		for(String location:locationNames){
-			new FiltersDbManager(getApplicationContext()).insertIntoFilterLocationsTable(location, true);
+		locationNames = new LabTimesDbManager(getApplicationContext())
+				.getAllLocationNames();
+
+		for (String location : locationNames) {
+			new FiltersDbManager(getApplicationContext())
+					.insertIntoFilterLocationsTable(location, true);
 		}
 	}
 
@@ -165,8 +165,9 @@ public class MainActivity extends Activity {
 	private ArrayList<LabTime> getLabs() {
 		SelectedLabsDbManager dbSelected;
 		dbSelected = new SelectedLabsDbManager(getApplicationContext());
+		// TODO add (if filters == true) loop
 		ArrayList<LabTime> labTimesGroupFuture = SelectedLabsCreator
-				.getLabsAfterTime(testCurrentDate);
+				.getLabsAfterTimeWithFilters(testCurrentDate);
 		dbSelected.close();
 
 		ArrayList<LabTime> labTimesFltrAvail = Filterer
