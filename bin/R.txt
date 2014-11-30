@@ -120,13 +120,14 @@ int bool abc_config_actionMenuItemAllCaps 0x7f060005
 int bool abc_config_allowActionMenuItemTextWithIcon 0x7f060004
 int bool abc_config_showMenuShortcutsWhenKeyboardPresent 0x7f060003
 int bool abc_split_action_bar_is_narrow 0x7f060002
-int color abc_search_url_text_holo 0x7f070007
+int color abc_search_url_text_holo 0x7f070008
 int color abc_search_url_text_normal 0x7f070000
 int color abc_search_url_text_pressed 0x7f070002
 int color abc_search_url_text_selected 0x7f070001
 int color app_background 0x7f070005
 int color bright 0x7f070004
 int color dark 0x7f070003
+int color reminder_button_background 0x7f070007
 int color unavailable_lab_room_name 0x7f070006
 int dimen abc_action_bar_default_height 0x7f080002
 int dimen abc_action_bar_icon_vertical_padding 0x7f080003
@@ -245,7 +246,6 @@ int drawable ic_action_refresh_white 0x7f02005a
 int drawable ic_launcher 0x7f02005b
 int drawable lab_availability_logo 0x7f02005c
 int drawable lab_availability_notification_logo 0x7f02005d
-int drawable reminder_button_round 0x7f02005e
 int id action_bar 0x7f05001c
 int id action_bar_activity_content 0x7f050015
 int id action_bar_container 0x7f05001b
@@ -383,6 +383,9 @@ int string filters_onoff_switch_label 0x7f0a0016
 int string future_labs_title 0x7f0a0012
 int string hello_world 0x7f0a000e
 int string location_selection_header_label 0x7f0a0014
+int string menu_item_filters_title 0x7f0a0019
+int string menu_item_load_title 0x7f0a001a
+int string reminder_button_description 0x7f0a0018
 int string single_lab_view_label 0x7f0a0011
 int style AppBaseTheme 0x7f0b008b
 int style AppTheme 0x7f0b008c

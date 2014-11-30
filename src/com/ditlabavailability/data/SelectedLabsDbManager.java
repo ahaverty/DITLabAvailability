@@ -127,8 +127,6 @@ public class SelectedLabsDbManager extends SQLiteOpenHelper {
 		ArrayList<LabTime> selectedLabs = new ArrayList<LabTime>();
 		String selectQuery = "SELECT  * FROM " + TABLE_S_LABTIME;
 
-		Log.i(LOG, selectQuery);
-
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor c = db.rawQuery(selectQuery, null);
 
@@ -149,8 +147,6 @@ public class SelectedLabsDbManager extends SQLiteOpenHelper {
 		String selectQuery = "SELECT  * FROM " + TABLE_S_LABTIME + " WHERE "
 				+ KEY_UNTILTIME + " > Datetime('" + timeFrom.toString(fmt)
 				+ "') ORDER BY " + KEY_ROOM + " ASC, " + KEY_LABTIME + " ASC";
-
-		Log.i(LOG, selectQuery);
 
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor c = db.rawQuery(selectQuery, null);
@@ -189,8 +185,6 @@ public class SelectedLabsDbManager extends SQLiteOpenHelper {
 				+ enabledLocationsFormatted + " ) ORDER BY " + KEY_ROOM
 				+ " ASC, " + KEY_LABTIME + " ASC";
 
-		Log.i(LOG, selectQuery);
-
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor c = db.rawQuery(selectQuery, null);
 
@@ -224,13 +218,20 @@ public class SelectedLabsDbManager extends SQLiteOpenHelper {
 				+ KEY_ROOM + " = '" + roomName + "' AND " + KEY_UNTILTIME
 				+ " > Datetime('" + timeFrom.toString(fmt) + "') ORDER BY "
 				+ KEY_ROOM + " ASC, " + KEY_LABTIME + " ASC";
+		
+		try {
+			SQLiteDatabase db = this.getReadableDatabase();
+			Cursor c = db.rawQuery(selectQuery, null);
 
-		Log.i(LOG, selectQuery);
-
-		SQLiteDatabase db = this.getReadableDatabase();
-		Cursor c = db.rawQuery(selectQuery, null);
-
-		selectedLabs = retrieveLabData(c);
+			selectedLabs = retrieveLabData(c);
+			
+			if (c.getCount() == 0){
+				throw new Exception();
+			}
+		} catch(Exception exception){
+			Log.e(LOG, "Unable to retrieve future labs\n" + exception);
+			selectedLabs = null;
+		}
 
 		return selectedLabs;
 	}

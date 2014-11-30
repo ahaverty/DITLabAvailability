@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
@@ -63,27 +65,42 @@ public class FiltersDbManager extends SQLiteOpenHelper {
 		values.put(KEY_LOCATION, location);
 		values.put(KEY_STATUS, setStatusToInt(status));
 
-		db.insert(TABLE_FILTER_LOCATIONS, null, values);
+		Log.d(LOG, "");
+		try {
+			db.insertOrThrow(TABLE_FILTER_LOCATIONS, null, values);
+		} catch (SQLException exception) {
+			if (exception instanceof SQLiteConstraintException) {
+				Log.w(LOG, "Insert on table " + TABLE_FILTER_LOCATIONS
+						+ " failed\nException: " + exception);
+			} else {
+				Log.w(LOG, "Insert on table " + TABLE_FILTER_LOCATIONS
+						+ "failed\nException: " + exception);
+			}
+		} finally {
+			db.close();
+		}
 	}
 
 	public boolean getLocationStatus(String location) {
 		SQLiteDatabase db = this.getWritableDatabase();
-		String selectQuery = "SELECT " + KEY_STATUS + " FROM "
-				+ TABLE_FILTER_LOCATIONS + " WHERE " + KEY_LOCATION + " LIKE '"
-				+ location + "'";
 		boolean status;
 
-		Log.i(LOG, selectQuery);
-		Cursor c = db.rawQuery(selectQuery, null);
+		Cursor c = db.query(TABLE_FILTER_LOCATIONS,
+				new String[] { KEY_STATUS }, KEY_LOCATION + " LIKE '" + location + "'",
+				null, null, null, null);
+		
 
-		if (c.moveToFirst()){
-			status = getStatusBooleanFromInt(c.getInt(c.getColumnIndex(KEY_STATUS)));
-		}
-		else{
-			Log.w(LOG, "getLocationStatus Cursor is null. FilterDatabase possibly not created yet.");
+		if (c.moveToFirst()) {
+			status = getStatusBooleanFromInt(c.getInt(c
+					.getColumnIndex(KEY_STATUS)));
+		} else {
+			Log.w(LOG,
+					"getLocationStatus Cursor is null. FilterDatabase possibly not created yet.");
 			Log.e(LOG, "Returning false");
 			return false;
 		}
+		
+		db.close();
 		
 		return status;
 	}
@@ -97,26 +114,31 @@ public class FiltersDbManager extends SQLiteOpenHelper {
 
 		db.update(TABLE_FILTER_LOCATIONS, values, KEY_LOCATION + " = ?",
 				new String[] { location });
+		db.close();
 	}
-	
+
 	/**
-	 * Get all lab location names that are currently enabled in the filter location table
+	 * Get all lab location names that are currently enabled in the filter
+	 * location table
+	 * 
 	 * @return ArrayList of location string names
 	 */
 	public ArrayList<String> getAllStatusTrueLocations() {
 		ArrayList<String> enabledLocations = new ArrayList<String>();
-		String selectQuery = "SELECT " + KEY_LOCATION + " FROM " + TABLE_FILTER_LOCATIONS + " WHERE " + KEY_STATUS + " = 1";
-		Log.i(LOG, selectQuery);
+		String selectQuery = "SELECT " + KEY_LOCATION + " FROM "
+				+ TABLE_FILTER_LOCATIONS + " WHERE " + KEY_STATUS + " = 1";
 
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor c = db.rawQuery(selectQuery, null);
-		
+
 		if (c.moveToFirst()) {
 			do {
-				enabledLocations.add(c.getString(c.getColumnIndex(KEY_LOCATION)));
+				enabledLocations
+						.add(c.getString(c.getColumnIndex(KEY_LOCATION)));
 			} while (c.moveToNext());
 		}
-		
+		db.close();
+
 		return enabledLocations;
 	}
 

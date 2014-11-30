@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.ditlabavailability.model.LabTime;
 
-public class Filterer {
+public class LabsFilterer {
 
 	/**
 	 * @param labTimeList

@@ -6,8 +6,8 @@
     <item
         android:id="@+id/menu_filters"
         android:orderInCategory="100"
-        android:showAsAction="always"
-        android:title="Filters"
+        android:showAsAction="ifRoom"
+        android:title="@string/menu_item_filters_title"
         />
 
     <item
@@ -15,6 +15,6 @@
         android:icon="@drawable/ic_action_refresh_white"
         android:orderInCategory="200"
         android:showAsAction="always"
-        android:title="Load"/>
+        android:title="@string/menu_item_load_title"/>
 
 </menu> 

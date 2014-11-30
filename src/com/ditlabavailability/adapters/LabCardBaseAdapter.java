@@ -13,13 +13,16 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 public class LabCardBaseAdapter extends BaseAdapter {
-	public static ArrayList<LabTime> labArrayList;
 
-	public LayoutInflater mInflater;
+	public ArrayList<LabTime> labArrayList;
+	public LayoutInflater Inflater;
+
+	private ViewHolder mHolder;
+	private View mConvertView;
 
 	public LabCardBaseAdapter(Context context, ArrayList<LabTime> results) {
 		labArrayList = results;
-		mInflater = LayoutInflater.from(context);
+		Inflater = LayoutInflater.from(context);
 	}
 
 	public int getCount() {
@@ -35,59 +38,70 @@ public class LabCardBaseAdapter extends BaseAdapter {
 	}
 
 	public View getView(int position, View convertView, ViewGroup parent) {
-		ViewHolder holder = new ViewHolder();
-		boolean doesMatchPrevious;
-		int unavailableColor = mInflater.getContext().getResources()
-				.getColor(R.color.unavailable_lab_room_name);
 
+		this.mConvertView = convertView;
 		LabTime lab = labArrayList.get(position);
 
+		boolean MatchesPrevious;
+		int unavailableColor = Inflater.getContext().getResources()
+				.getColor(R.color.unavailable_lab_room_name);
+
+		/*
+		 * grouping labs by same room name and applying appropriate layout
+		 * according to order, i.e the first hour of every room is given the
+		 * header view layout
+		 */
 		if (position > 0) {
-			doesMatchPrevious = labArrayList.get(position - 1).getRoom()
+			MatchesPrevious = labArrayList.get(position - 1).getRoom()
 					.equals(lab.getRoom());
 		} else {
-			doesMatchPrevious = false;
+			MatchesPrevious = false;
 		}
 
-		if (doesMatchPrevious) {
-			convertView = mInflater.inflate(R.layout.sub_lab_card, parent,
+		if (MatchesPrevious) {
+			mConvertView = Inflater
+					.inflate(R.layout.sub_lab_card, parent, false);
+			mHolder = createHolder();
+			mConvertView.setTag(mHolder);
+
+		} else {
+
+			mConvertView = Inflater.inflate(R.layout.lab_card_header, parent,
 					false);
+			mHolder = createHolder();
+			mConvertView.setTag(mHolder);
 
-			holder.availability = (TextView) convertView
-					.findViewById(R.id.availability);
-			holder.time = (TextView) convertView.findViewById(R.id.time);
-			convertView.setTag(holder);
-		}
-
-		else {
-			convertView = mInflater.inflate(R.layout.lab_card_header, parent,
-					false);
-
-			holder.labName = (TextView) convertView.findViewById(R.id.labName);
-			holder.time = (TextView) convertView.findViewById(R.id.time);
-			holder.availability = (TextView) convertView
-					.findViewById(R.id.availability);
-			holder.location = (TextView) convertView
-					.findViewById(R.id.location);
-			convertView.setTag(holder);
-
-			holder.labName.setText(lab.getRoom());
-			holder.location.setText(lab.getLocation());
+			mHolder.labName.setText(lab.getRoom());
+			mHolder.location.setText(lab.getLocation());
 
 			if (lab.getAvailability() == false) {
-				holder.labName.setTextColor(unavailableColor);
-				holder.time.setTextColor(unavailableColor);
-				holder.availability.setTextColor(unavailableColor);
-				holder.location.setTextColor(unavailableColor);
+				mHolder.labName.setTextColor(unavailableColor);
+				mHolder.time.setTextColor(unavailableColor);
+				mHolder.availability.setTextColor(unavailableColor);
+				mHolder.location.setTextColor(unavailableColor);
 			}
-
 		}
 
 		// common setters among lab cards
-		holder.time.setText(lab.getHourStr() + " - " + lab.getUntilHourStr());
-		holder.availability.setText(lab.getAvailabilityStr());
+		mHolder.time.setText(lab.getHourStr() + " - " + lab.getUntilHourStr());
+		mHolder.availability.setText(lab.getAvailabilityStr());
 
-		return convertView;
+		return mConvertView;
+	}
+
+	private ViewHolder createHolder() {
+		ViewHolder holder = new ViewHolder();
+
+		holder.availability = (TextView) mConvertView
+				.findViewById(R.id.availability);
+		holder.time = (TextView) mConvertView.findViewById(R.id.time);
+		holder.labName = (TextView) mConvertView.findViewById(R.id.labName);
+		holder.time = (TextView) mConvertView.findViewById(R.id.time);
+		holder.availability = (TextView) mConvertView
+				.findViewById(R.id.availability);
+		holder.location = (TextView) mConvertView.findViewById(R.id.location);
+
+		return holder;
 	}
 
 	static class ViewHolder {

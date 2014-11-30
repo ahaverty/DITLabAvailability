@@ -10,7 +10,6 @@ import com.ditlabavailability.helpers.FilterPreferences;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.CheckBox;
@@ -26,35 +25,35 @@ public class FilterActivity extends Activity {
 	LinearLayout filterLinear;
 	OnClickListener checkBoxListener;
 
-	// Logcat tag
-	private static final String LOG = "FilterActivity";
-
-	private FilterPreferences filterPreferences;
+	private FilterPreferences mFilterPreferences;
+	
 	boolean allFiltersEnabled;
 	boolean favouritesEnabled;
 	int demoTimeHour;
 	int demoTimeMinute;
 
-	private LinearLayout restOfFiltersWrapper;
-	private TimePicker demoTimePicker;
+	private LinearLayout mRestOfFiltersWrapper;
+	private TimePicker mDemoTimePicker;
 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.filter_view);
 		getActionBar().setDisplayHomeAsUpEnabled(true);
+		
+		mContext = getApplicationContext();
 
 		// Load Preferences
-		filterPreferences = new FilterPreferences(getApplicationContext());
-		allFiltersEnabled = filterPreferences.isAllFiltersEnabled();
-		favouritesEnabled = filterPreferences.isFavouritesEnabled();
-		demoTimeHour = filterPreferences.getDemoTimeHour();
-		demoTimeMinute = filterPreferences.getDemoTimeMinute();
+		mFilterPreferences = new FilterPreferences(mContext);
+		allFiltersEnabled = mFilterPreferences.isAllFiltersEnabled();
+		favouritesEnabled = mFilterPreferences.isFavouritesEnabled();
+		demoTimeHour = mFilterPreferences.getDemoTimeHour();
+		demoTimeMinute = mFilterPreferences.getDemoTimeMinute();
 
-		restOfFiltersWrapper = (LinearLayout) findViewById(R.id.rest_filters_wrapper);
+		mRestOfFiltersWrapper = (LinearLayout) findViewById(R.id.rest_filters_wrapper);
 		Switch filtersOnOffSwitch = (Switch) findViewById(R.id.filters_onoff_switch);
 		filtersOnOffSwitch.setChecked(allFiltersEnabled);
 		if (allFiltersEnabled == false) {
-			restOfFiltersWrapper.setVisibility(View.GONE);
+			mRestOfFiltersWrapper.setVisibility(View.GONE);
 		}
 		filtersOnOffSwitch
 				.setOnCheckedChangeListener(new OnCheckedChangeListener() {
@@ -62,12 +61,11 @@ public class FilterActivity extends Activity {
 					public void onCheckedChanged(CompoundButton buttonView,
 							boolean isChecked) {
 						if (isChecked) {
-							restOfFiltersWrapper.setVisibility(View.VISIBLE);
+							mRestOfFiltersWrapper.setVisibility(View.VISIBLE);
 						} else {
-							restOfFiltersWrapper.setVisibility(View.GONE);
+							mRestOfFiltersWrapper.setVisibility(View.GONE);
 						}
 
-						Log.v("Switch State = ", "" + isChecked);
 						allFiltersEnabled = isChecked;
 					}
 
@@ -75,36 +73,38 @@ public class FilterActivity extends Activity {
 
 		// TODO Remove demo TimePicker before release --------------
 		// TimePicker used for demo purposes only ------------------
-		demoTimePicker = (TimePicker) findViewById(R.id.demoTimePicker);
-		demoTimePicker.setCurrentHour(demoTimeHour);
-		demoTimePicker.setCurrentMinute(demoTimeMinute);
+		mDemoTimePicker = (TimePicker) findViewById(R.id.demoTimePicker);
+		mDemoTimePicker.setCurrentHour(demoTimeHour);
+		mDemoTimePicker.setCurrentMinute(demoTimeMinute);
 		// TimePicker used for demo purposes only -----------------------
 
 		filterLinear = (LinearLayout) findViewById(R.id.location_selection);
-		mContext = getApplicationContext();
 		createLocationCheckboxes();
 	}
 
 	protected void onPause() {
 		super.onPause();
-		filterPreferences.setAllPreferences(allFiltersEnabled,
-				favouritesEnabled, demoTimePicker.getCurrentHour(),
-				demoTimePicker.getCurrentMinute());
+		mFilterPreferences.setAllPreferences(allFiltersEnabled,
+				favouritesEnabled, mDemoTimePicker.getCurrentHour(),
+				mDemoTimePicker.getCurrentMinute());
 	}
 
 	private void createLocationCheckboxes() {
 		List<String> locationNames = new ArrayList<String>();
-		locationNames = new LabTimesDbManager(mContext).getAllLocationNames();
+		LabTimesDbManager dbLabTimes = new LabTimesDbManager(mContext);
+		locationNames = dbLabTimes.getAllLocationNames();
+		dbLabTimes.closeDB();
 		boolean status;
 
 		for (String location : locationNames) {
-			status = new FiltersDbManager(mContext).getLocationStatus(location);
+			FiltersDbManager dbFilters = new FiltersDbManager(mContext);
+			status = dbFilters.getLocationStatus(location);
+			dbFilters.closeDB();
 			addCheckbox(locationNames.indexOf(location), location, status);
 		}
 	}
 
 	private void addCheckbox(int number, String label, boolean status) {
-		Log.i(LOG, "Starting addCheckbox");
 		CheckBox checkBox = new CheckBox(this);
 		checkBox.setId(number);
 		checkBox.setText(label);
@@ -118,10 +118,11 @@ public class FilterActivity extends Activity {
 			}
 		});
 		filterLinear.addView(checkBox);
-		Log.i(LOG, "Ending addCheckbox");
 	}
 
 	private void updateLocationStatus(String location, boolean status) {
-		new FiltersDbManager(mContext).updateLocationStatus(location, status);
+		FiltersDbManager dbFilters = new FiltersDbManager(mContext);
+		dbFilters.updateLocationStatus(location, status);
+		dbFilters.closeDB();
 	}
 }

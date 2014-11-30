@@ -2,9 +2,6 @@ package com.ditlabavailability.notifications;
 
 import java.util.Calendar;
 
-import org.joda.time.format.DateTimeFormatter;
-
-import com.ditlabavailability.helpers.Constants;
 import com.ditlabavailability.model.LabTime;
 
 import android.app.Activity;
@@ -15,7 +12,7 @@ import android.content.Intent;
 
 public class NotificationCreator extends Activity {
 	
-	DateTimeFormatter fmt = Constants.FMT;
+	private static String alarm = Context.ALARM_SERVICE;
 	
 	public static void createScheduledNotification(Context mContext, LabTime lab)
 	{
@@ -23,7 +20,7 @@ public class NotificationCreator extends Activity {
 		calendar.setTimeInMillis(System.currentTimeMillis());
 		calendar.add(Calendar.SECOND, 1);
 
-		AlarmManager alarmManager = (AlarmManager) mContext.getSystemService(mContext.ALARM_SERVICE);
+		AlarmManager alarmManager = (AlarmManager) mContext.getSystemService(alarm);
 		int id = (int) System.currentTimeMillis();
 		Intent intent = new Intent(mContext, TimeAlarm.class);
 		intent.putExtra("labName", lab.getRoom());

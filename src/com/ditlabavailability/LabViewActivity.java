@@ -8,15 +8,17 @@ import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.PeriodFormat;
 
 import com.ditlabavailability.adapters.LabCardSubOnlyBaseAdapter;
-import com.ditlabavailability.creator.SelectedLabsCreator;
 import com.ditlabavailability.helpers.Constants;
 import com.ditlabavailability.helpers.FilterPreferences;
+import com.ditlabavailability.helpers.SelectedLabsHelper;
 import com.ditlabavailability.model.LabTime;
 import com.ditlabavailability.notifications.NotificationCreator;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -35,6 +37,7 @@ public class LabViewActivity extends Activity implements View.OnClickListener {
 	String labName;
 
 	Context mContext;
+	private static final String LOG = "LabViewActivity";
 
 	private FilterPreferences filterPreferences;
 	boolean allFiltersEnabled;
@@ -92,8 +95,23 @@ public class LabViewActivity extends Activity implements View.OnClickListener {
 
 		Period periodUntilChange;
 
-		ArrayList<LabTime> labs = SelectedLabsCreator.getFutureLabsByRoom(
-				getApplicationContext(), labName, testCurrentDate);
+		SelectedLabsHelper labsHelper = new SelectedLabsHelper(mContext);
+		ArrayList<LabTime> labs = labsHelper.getFutureLabsByRoom(labName,
+				testCurrentDate);
+		labsHelper.closeDb();
+		
+		if(labs==null){
+			Log.w(LOG,
+					"Intent could not retrieve extras: lab_name\n"
+							+ "Possibly caused by opening intent call from expired notification");
+			
+			Toast.makeText(mContext, "Error: Lab not found.", Toast.LENGTH_LONG).show();
+			Intent startIntent = new Intent(mContext, MainActivity.class);
+			startIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);        
+			mContext.startActivity(startIntent);
+			finish();
+			return;
+		}
 
 		primaryLab = labs.get(0);
 
@@ -124,8 +142,12 @@ public class LabViewActivity extends Activity implements View.OnClickListener {
 		ArrayList<LabTime> restOfLabs = labsMinusFirstlab(labs);
 
 		if (restOfLabs.isEmpty() == false) {
-			final ListView lv = (ListView) findViewById(R.id.labListView);
-			lv.setAdapter(new LabCardSubOnlyBaseAdapter(this, restOfLabs));
+			final ListView restOfTimesList = (ListView) findViewById(R.id.labListView);
+			restOfTimesList.setAdapter(new LabCardSubOnlyBaseAdapter(this,
+					restOfLabs));
+			restOfTimesList.setLongClickable(false);
+			restOfTimesList.setClickable(false);
+			restOfTimesList.setSelector(android.R.color.transparent);
 		} else {
 			futureLabsTitleView.setVisibility(View.GONE);
 		}

@@ -3,4 +3,5 @@
 	<color name="bright">#ffffff</color>
 	<color name="app_background">#F5F5F5</color>
 	<color name="unavailable_lab_room_name">#66000000</color>
+	<color name="reminder_button_background">#717777</color>
 </resources>

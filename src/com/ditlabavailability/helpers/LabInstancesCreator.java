@@ -1,28 +1,32 @@
-package com.ditlabavailability.creator;
+package com.ditlabavailability.helpers;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.DateTime;
 
-import android.util.Log;
+import android.content.Context;
 
 import com.ditlabavailability.data.LabTimesDbManager;
+import com.ditlabavailability.helpers.Constants;
 import com.ditlabavailability.model.LabDetails;
 import com.ditlabavailability.model.LabTime;
 import com.ditlabavailability.model.Reserved;
 
-public class LabCreator {
+public class LabInstancesCreator {
 
-	static int dayStart = 9;
-	static int dayEnd = 21;
+	private static LabTimesDbManager sDbLabTimes;
 
-	public static ArrayList<LabTime> createAllLabInstances(LabTimesDbManager db,
+	public static ArrayList<LabTime> createAllLabInstances(Context context,
 			DateTime selectedDate) {
 
-		List<LabDetails> allLabs = db.getAllLabs();
-		List<Reserved> reservationsByFilteredDate = db
+		sDbLabTimes = new LabTimesDbManager(context);
+
+		List<LabDetails> allLabs = sDbLabTimes.getAllLabs();
+		List<Reserved> reservationsByFilteredDate = sDbLabTimes
 				.getReservationsByDate(selectedDate);
+		sDbLabTimes.closeDB();
+		
 		ArrayList<LabTime> allLabInstances = new ArrayList<LabTime>();
 
 		String room;
@@ -32,7 +36,7 @@ public class LabCreator {
 
 		for (LabDetails lab : allLabs) {
 
-			for (int i = dayStart; i <= dayEnd; i++) {
+			for (int i = Constants.START_HOUR_OF_DAY; i <= Constants.END_HOUR_OF_DAY; i++) {
 				room = lab.getRoom();
 				labDatetime = selectedDate.withHourOfDay(i);
 				location = lab.getLocation();

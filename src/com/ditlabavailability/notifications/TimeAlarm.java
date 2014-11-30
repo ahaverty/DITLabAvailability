@@ -2,6 +2,7 @@ package com.ditlabavailability.notifications;
 
 import java.math.BigInteger;
 
+import com.ditlabavailability.LabViewActivity;
 import com.ditlabavailability.R;
 
 import android.app.Notification;
@@ -12,9 +13,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.support.v4.app.NotificationCompat;
 
 public class TimeAlarm extends BroadcastReceiver {
-
+	
 	@Override
 	public void onReceive(Context mContext, Intent paramIntent) {
 
@@ -28,16 +30,12 @@ public class TimeAlarm extends BroadcastReceiver {
 
 		NotificationManager notificationManager = (NotificationManager) mContext
 				.getSystemService(Context.NOTIFICATION_SERVICE);
-
-		// Create a new intent which will be fired if you click on the
-		// notification
-		Intent intent = new Intent("android.intent.action.VIEW");
 		
-		// TODO: Notification should tap to bring to lab full view intent.
-		//intent.setData(data)
+		Intent labViewIntent = new Intent(mContext, LabViewActivity.class);
+		labViewIntent.putExtra("lab_name", labName);
 
 		PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0,
-				intent, PendingIntent.FLAG_UPDATE_CURRENT);
+				labViewIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 		if (labAvailabilityBoolean) {
 			availabilityMessage = "becoming unavailable";
@@ -50,7 +48,8 @@ public class TimeAlarm extends BroadcastReceiver {
 		Bitmap largeIcon = BitmapFactory.decodeResource(null, R.drawable.lab_availability_logo);
 		
 		Notification noti = new Notification.Builder(mContext)
-				.setPriority(200)
+				.setPriority(NotificationCompat.PRIORITY_HIGH)
+				.setAutoCancel(true)
 				.setContentTitle("Lab " + availabilityMessage)
 				.setContentText(
 						labName + " " + availLongMessage + " "
@@ -60,11 +59,14 @@ public class TimeAlarm extends BroadcastReceiver {
 				.setContentIntent(pendingIntent).build();
 		
 		notificationId = getLabSpecificId(labName);
-		
-		//TODO create custom id's per lab room
 		notificationManager.notify(notificationId, noti);
 	}
 	
+	/**
+	 * Creates an ID by parsing a lab room name into an integer
+	 * @param labName
+	 * @return An ID unique to each lab room 
+	 */
 	private int getLabSpecificId(String labName){
 		StringBuilder sb = new StringBuilder();
 		for (char c:labName.toCharArray())

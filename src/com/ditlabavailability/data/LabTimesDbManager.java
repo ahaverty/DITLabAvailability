@@ -26,26 +26,26 @@ public class LabTimesDbManager extends SQLiteOpenHelper {
 	private static final String LOG = "LabTimesDbManager";
 
 	// Database Version
-	private static final int DATABASE_VERSION = 1;
-	private static final String DATABASE_NAME = "labTimes.db";
+	private final static int DATABASE_VERSION = 1;
+	private final static String DATABASE_NAME = "labTimes.db";
 
 	// Table Names
-	private static final String TABLE_LABS = "labs";
-	private static final String TABLE_RESERVED = "reserved";
+	private final String TABLE_LABS = "labs";
+	private final String TABLE_RESERVED = "reserved";
 
 	// Common columns between tables
-	private static final String KEY_ROOM = "room";
-	private static final String KEY_LOCATION = "location";
-	private static final String KEY_DATETIME = "datetime";
+	private final String KEY_ROOM = "room";
+	private final String KEY_LOCATION = "location";
+	private final String KEY_DATETIME = "datetime";
 
 	// Table Create Statements
 	// LABS table create statement
-	private static final String CREATE_TABLE_LABS = "CREATE TABLE "
+	private final String CREATE_TABLE_LABS = "CREATE TABLE "
 			+ TABLE_LABS + "(" + KEY_ROOM + " TEXT PRIMARY KEY, "
 			+ KEY_LOCATION + " TEXT" + ")";
 
 	// TIMES table create statement
-	private static final String CREATE_TABLE_RESERVED = "CREATE TABLE "
+	private final String CREATE_TABLE_RESERVED = "CREATE TABLE "
 			+ TABLE_RESERVED + "(" + KEY_ROOM + " TEXT, " + KEY_DATETIME
 			+ " DATETIME, " + "PRIMARY KEY (" + KEY_ROOM + ", " + KEY_DATETIME
 			+ "))";
@@ -103,8 +103,6 @@ public class LabTimesDbManager extends SQLiteOpenHelper {
 		String selectQuery = "SELECT  * FROM " + TABLE_LABS + " WHERE "
 				+ KEY_ROOM + " = " + roomName;
 
-		Log.i(LOG, selectQuery);
-
 		Cursor c = db.rawQuery(selectQuery, null);
 
 		if (c != null)
@@ -123,8 +121,6 @@ public class LabTimesDbManager extends SQLiteOpenHelper {
 	public List<LabDetails> getAllLabs() {
 		List<LabDetails> labs = new ArrayList<LabDetails>();
 		String selectQuery = "SELECT * FROM " + TABLE_LABS;
-
-		Log.i(LOG, selectQuery);
 
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor c = db.rawQuery(selectQuery, null);
@@ -172,14 +168,20 @@ public class LabTimesDbManager extends SQLiteOpenHelper {
 	 * Creating lab time
 	 */
 	public long createReservation(Reserved reservation) {
+		long reservation_id = -1;
 		SQLiteDatabase db = this.getWritableDatabase();
 
 		ContentValues values = new ContentValues();
 		values.put(KEY_ROOM, reservation.getRoom());
 		values.put(KEY_DATETIME, reservation.getDatetimeStr());
 
-		// insert row
-		long reservation_id = db.insert(TABLE_RESERVED, null, values);
+		try {
+			reservation_id = db.insert(TABLE_RESERVED, null, values);
+		} catch (Exception exception) {
+			Log.e(LOG, "Failed to insert into: " + TABLE_RESERVED
+					+ "\n with data: " + values.getAsString(KEY_ROOM) + " | "
+					+ values.getAsString(KEY_DATETIME));
+		}
 
 		return reservation_id;
 	}
@@ -190,8 +192,6 @@ public class LabTimesDbManager extends SQLiteOpenHelper {
 	public List<Reserved> getAllReservations() {
 		List<Reserved> labReservations = new ArrayList<Reserved>();
 		String selectQuery = "SELECT  * FROM " + TABLE_RESERVED;
-
-		Log.i(LOG, selectQuery);
 
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor c = db.rawQuery(selectQuery, null);
@@ -222,8 +222,6 @@ public class LabTimesDbManager extends SQLiteOpenHelper {
 		String selectQuery = "SELECT * FROM " + TABLE_RESERVED
 				+ " WHERE datetime >= Datetime('" + fmt.print(dateBegin)
 				+ "') AND datetime <= Datetime('" + fmt.print(dateEnd) + "')";
-
-		Log.i(LOG, selectQuery);
 
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor c = db.rawQuery(selectQuery, null);
@@ -267,12 +265,12 @@ public class LabTimesDbManager extends SQLiteOpenHelper {
 
 	public List<String> getAllLocationNames() {
 		List<String> locationNames = new ArrayList<String>();
-		String selectQuery = "SELECT DISTINCT " + KEY_LOCATION + " FROM " + TABLE_LABS;
+		String selectQuery = "SELECT DISTINCT " + KEY_LOCATION + " FROM "
+				+ TABLE_LABS;
 		SQLiteDatabase db = this.getReadableDatabase();
-		
-		Log.i(LOG, selectQuery);
+
 		Cursor c = db.rawQuery(selectQuery, null);
-		
+
 		if (c.moveToFirst()) {
 			do {
 				locationNames.add(c.getString(0));

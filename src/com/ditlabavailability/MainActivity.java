@@ -7,16 +7,15 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 
 import com.ditlabavailability.adapters.LabCardBaseAdapter;
-import com.ditlabavailability.creator.LabCreator;
-import com.ditlabavailability.creator.SelectedLabsCreator;
 import com.ditlabavailability.data.DataPopulator;
 import com.ditlabavailability.data.FiltersDbManager;
 import com.ditlabavailability.data.LabTimesDbManager;
-import com.ditlabavailability.data.SelectedLabsDbManager;
 import com.ditlabavailability.helpers.Constants;
 import com.ditlabavailability.helpers.FilterPreferences;
-import com.ditlabavailability.helpers.Filterer;
+import com.ditlabavailability.helpers.LabsFilterer;
 import com.ditlabavailability.helpers.LabGrouper;
+import com.ditlabavailability.helpers.LabInstancesCreator;
+import com.ditlabavailability.helpers.SelectedLabsHelper;
 import com.ditlabavailability.model.LabTime;
 
 import android.app.ActionBar;
@@ -25,7 +24,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -36,39 +34,39 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
-	// Logcat tag
-	private static final String LOG = "MainActivity";
+	private Context mContext;
 
-	DateTimeFormatter fmt = Constants.FMT;
-	protected String testingDate = DateTime.now().withTime(0, 0, 0, 0)
-			.toString(fmt);
-	DateTime testCurrentDate;
+	private DateTimeFormatter mFmt = Constants.FMT;
+	private String mTestingDate = DateTime.now().withTime(0, 0, 0, 0)
+			.toString(mFmt);
+	private DateTime mTestCurrentDate;
 
-	private FilterPreferences filterPreferences;
-	boolean allFiltersEnabled;
-	boolean favouritesEnabled;
-	int demoTimeHour;
-	int demoTimeMinute;
-
-	protected MenuItem menuItem;
+	private MenuItem mMenuItem;
 	private Menu mOptionsMenu;
+
+	private FilterPreferences mFilterPreferences;
+	private boolean mAllFiltersEnabled;
+	private int mDemoTimeHour;
+	private int mDemoTimeMinute;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
 		setContentView(R.layout.all_labs_main_view);
 
-		Log.i(LOG, "onCreate Called");
+		mContext = getApplicationContext();
 
+		createActionBar();
 		loadPreferences();
 		setCurrentDateAndTime();
 
-		createActionBar();
-		ceateDaysLabData();
-		getLabs();
+		createDaysLabData();
+		getGroupedFilteredArrangedLabs();
 		createFilterDatabase();
 	}
 
+	@Override
 	protected void onResume() {
 		super.onResume();
 
@@ -76,19 +74,21 @@ public class MainActivity extends Activity {
 		setCurrentDateAndTime();
 
 		// Setup main list of labs
-		final ListView lv = (ListView) findViewById(R.id.labListView);
-		lv.setAdapter(new LabCardBaseAdapter(getBaseContext(), refreshLabs()));
-		lv.setOnItemClickListener(new OnItemClickListener() {
+		final ListView mMainLabListView = (ListView) findViewById(R.id.labListView);
+		mMainLabListView.setAdapter(new LabCardBaseAdapter(mContext,
+				refreshLabDbAndReturnLabs()));
+		mMainLabListView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> a, View v, int position,
 					long id) {
-				Object o = lv.getItemAtPosition(position);
-				LabTime fullObject = (LabTime) o;
+				Object unparsedLabObject = mMainLabListView
+						.getItemAtPosition(position);
+				LabTime lab = (LabTime) unparsedLabObject;
 
-				Intent intent = new Intent(MainActivity.this,
+				Intent labViewIntent = new Intent(MainActivity.this,
 						LabViewActivity.class);
-				intent.putExtra("lab_name", fullObject.getRoom());
-				startActivity(intent);
+				labViewIntent.putExtra("lab_name", lab.getRoom());
+				startActivity(labViewIntent);
 			}
 		});
 	}
@@ -104,15 +104,16 @@ public class MainActivity extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.menu_load:
-			menuItem = item;
-			menuItem.setActionView(R.layout.progress_bar);
-			menuItem.expandActionView();
-			RefreshLabsInBackground task = new RefreshLabsInBackground();
-			task.execute(getApplicationContext());
+			mMenuItem = item;
+			mMenuItem.setActionView(R.layout.progress_bar);
+			mMenuItem.expandActionView();
+			RefreshLabsAndListviewInBackground task = new RefreshLabsAndListviewInBackground();
+			task.execute(mContext);
 			break;
 		case R.id.menu_filters:
-			Intent intent = new Intent(MainActivity.this, FilterActivity.class);
-			startActivity(intent);
+			Intent filtersIntent = new Intent(MainActivity.this,
+					FilterActivity.class);
+			startActivity(filtersIntent);
 		default:
 			break;
 		}
@@ -126,106 +127,96 @@ public class MainActivity extends Activity {
 	}
 
 	private void loadPreferences() {
-		// Load Preferences
-		filterPreferences = new FilterPreferences(getApplicationContext());
-		allFiltersEnabled = filterPreferences.isAllFiltersEnabled();
-		favouritesEnabled = filterPreferences.isFavouritesEnabled();
-		demoTimeHour = filterPreferences.getDemoTimeHour();
-		demoTimeMinute = filterPreferences.getDemoTimeMinute();
+		mFilterPreferences = new FilterPreferences(mContext);
+		mAllFiltersEnabled = mFilterPreferences.isAllFiltersEnabled();
+		mDemoTimeHour = mFilterPreferences.getDemoTimeHour();
+		mDemoTimeMinute = mFilterPreferences.getDemoTimeMinute();
 	}
 
+	// TODO Setting current date and time for demo purposes only.
 	private void setCurrentDateAndTime() {
-		testCurrentDate = DateTime.now().withTime(demoTimeHour, demoTimeMinute,
-				0, 0);
+		mTestCurrentDate = DateTime.now().withTime(mDemoTimeHour,
+				mDemoTimeMinute, 0, 0);
 	}
 
-	private class RefreshLabsInBackground extends
+	private class RefreshLabsAndListviewInBackground extends
 			AsyncTask<Context, Void, ArrayList<LabTime>> {
 		private Context mContext;
 
 		protected ArrayList<LabTime> doInBackground(Context... context) {
-			mContext = context[0];
-			Log.i(LOG, "doInBackground Called");
-			return refreshLabs();
+			// TODO re-factor, no need for context to be passed in
+			this.mContext = context[0];
+			return refreshLabDbAndReturnLabs();
 		}
 
 		protected void onPostExecute(ArrayList<LabTime> labs) {
+			// TODO Re-factor listview object and assigning, avoid recreating
 			final ListView lv = (ListView) findViewById(R.id.labListView);
 			lv.setAdapter(new LabCardBaseAdapter(mContext, labs));
 
 			mOptionsMenu.clear();
 			getMenuInflater().inflate(R.menu.main, mOptionsMenu);
-			Toast.makeText(mContext, "Labs times have been updated",
+			Toast.makeText(mContext, "Labs have been updated",
 					Toast.LENGTH_SHORT).show();
 		}
 	};
 
-	private ArrayList<LabTime> refreshLabs() {
-		Log.i(LOG, "refreshLabs Called");
-		ceateDaysLabData();
-		return getLabs();
+	private ArrayList<LabTime> refreshLabDbAndReturnLabs() {
+		createDaysLabData();
+		return getGroupedFilteredArrangedLabs();
 	}
 
 	private void createFilterDatabase() {
-		Log.i(LOG, "createFilterDatabase Called");
 		List<String> locationNames = new ArrayList<String>();
-		FiltersDbManager dbFilters = new FiltersDbManager(
-				getApplicationContext());
-		LabTimesDbManager dbLabTimes = new LabTimesDbManager(
-				getApplicationContext());
+
+		FiltersDbManager dbFilters = new FiltersDbManager(mContext);
+		LabTimesDbManager dbLabTimes = new LabTimesDbManager(mContext);
+
 		locationNames = dbLabTimes.getAllLocationNames();
+		dbLabTimes.closeDB();
 
 		for (String location : locationNames) {
-			new FiltersDbManager(getApplicationContext())
-					.insertIntoFilterLocationsTable(location, true);
+			dbFilters.insertIntoFilterLocationsTable(location, true);
 		}
 
-		dbLabTimes.closeDB();
 		dbFilters.closeDB();
 	}
 
-	private void ceateDaysLabData() {
+	private void createDaysLabData() {
 
-		LabTimesDbManager dbLabTimes;
-		SelectedLabsDbManager dbSelected;
+		DataPopulator.populate(mContext);
 
-		dbLabTimes = new LabTimesDbManager(getApplicationContext());
-		DataPopulator.populate(dbLabTimes);
-		dbLabTimes.close();
+		DateTime filteredTimestamp = DateTime.parse(mTestingDate, mFmt);
 
-		DateTime filteredTimestamp = DateTime.parse(testingDate, fmt);
-
-		ArrayList<LabTime> initialLabTimes = LabCreator.createAllLabInstances(
-				dbLabTimes, filteredTimestamp);
+		ArrayList<LabTime> initialLabTimes = LabInstancesCreator.createAllLabInstances(
+				mContext, filteredTimestamp);
 
 		ArrayList<LabTime> labTimesGrouped = LabGrouper
 				.groupSimilarLabsByAvailability(initialLabTimes);
 
 		// insert grouped lab items into local database
-		dbSelected = new SelectedLabsDbManager(getApplicationContext());
-		SelectedLabsCreator.createSelectedLabs(dbSelected,
-				getApplicationContext(), labTimesGrouped);
-		dbSelected.close();
+		SelectedLabsHelper labsHelper = new SelectedLabsHelper(mContext);
+		labsHelper.createSelectedLabs(labTimesGrouped);
+		labsHelper.closeDb();
 	}
 
-	private ArrayList<LabTime> getLabs() {
-		SelectedLabsDbManager dbSelected;
-		dbSelected = new SelectedLabsDbManager(getApplicationContext());
+	private ArrayList<LabTime> getGroupedFilteredArrangedLabs() {
+		SelectedLabsHelper labsHelper = new SelectedLabsHelper(mContext);
 		ArrayList<LabTime> labTimesGroupFuture;
 
-		if (allFiltersEnabled) {
-			labTimesGroupFuture = SelectedLabsCreator
-					.getLabsAfterTimeWithFilters(testCurrentDate);
+		if (mAllFiltersEnabled) {
+			labTimesGroupFuture = labsHelper
+					.getLabsAfterTimeWithFilters(mTestCurrentDate);
 		} else {
-			labTimesGroupFuture = SelectedLabsCreator
-					.getLabsAfterTime(testCurrentDate);
+			labTimesGroupFuture = labsHelper
+					.getLabsAfterTime(mTestCurrentDate);
 		}
+		
+		labsHelper.closeDb();
 
-		dbSelected.close();
-
-		ArrayList<LabTime> labTimesFltrAvail = Filterer
+		ArrayList<LabTime> labTimes = LabsFilterer
 				.arrangeGroupedLabsByAvailability(labTimesGroupFuture);
 
-		return labTimesFltrAvail;
+		return labTimes;
 	}
 }
