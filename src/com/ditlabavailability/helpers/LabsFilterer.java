@@ -6,6 +6,13 @@ import java.util.List;
 
 import com.ditlabavailability.model.LabTime;
 
+/**
+ * Sorts arrays of labs in order by moving the labs positions in the list.
+ * Capable of sorting labs by availability
+ * 
+ * @author Alan Haverty
+ *
+ */
 public class LabsFilterer {
 
 	/**
@@ -43,10 +50,11 @@ public class LabsFilterer {
 	 * 
 	 * @param labTimeList
 	 * @param lab
-	 * @return boolean if supplied lab is the soonest to occur with the same
+	 * @return True if the supplied lab is the soonest to occur with the same
 	 *         room name
 	 */
-	private static boolean isSoonestOfRoom(ArrayList<LabTime> labTimeList, LabTime lab) {
+	private static boolean isSoonestOfRoom(ArrayList<LabTime> labTimeList,
+			LabTime lab) {
 		for (LabTime lt : labTimeList) {
 			if (lt.getLabtime().isBefore(lab.getLabtime())
 					&& lt.getRoom().equals(lab.getRoom())) {

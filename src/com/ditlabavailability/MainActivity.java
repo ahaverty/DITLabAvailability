@@ -32,6 +32,19 @@ import android.widget.ListView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Toast;
 
+/**
+ * <h1>DIT Lab Availability</h1> An Android Application that displays the
+ * availability of Computer Labs in DIT's Aungier Street & Kevin Street
+ * Building. The application is intended to help students find available/free
+ * labs using the simple list view and individual lab view. The application is
+ * also capable of filtering per location and setting notifications to warn the
+ * user when a lab is becoming available or is about to become unavailable.
+ * (Currently in testing mode, no connection to external database exists.)
+ * 
+ * @version 1.0
+ * @author Alan Haverty
+ *
+ */
 public class MainActivity extends Activity {
 
 	private Context mContext;
@@ -49,6 +62,11 @@ public class MainActivity extends Activity {
 	private int mDemoTimeHour;
 	private int mDemoTimeMinute;
 
+	/**
+	 * Setup the main activity view, action bar, set current date and time for
+	 * debug/demo reasons, create initial lab data and insert into local
+	 * database, create the filter database for the filtering activity
+	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -63,9 +81,13 @@ public class MainActivity extends Activity {
 
 		createDaysLabData();
 		getGroupedFilteredArrangedLabs();
-		createFilterDatabase();
+		createAndPopulateFilterDatabase();
 	}
 
+	/**
+	 * Load the preferences file, reset the datetime, setup the listview for the
+	 * main list on the main activity, setup the onItemClick listener
+	 */
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -73,7 +95,7 @@ public class MainActivity extends Activity {
 		loadPreferences();
 		setCurrentDateAndTime();
 
-		// Setup main list of labs
+		// Setup main list of labs and lists onItemClick listener
 		final ListView mMainLabListView = (ListView) findViewById(R.id.labListView);
 		mMainLabListView.setAdapter(new LabCardBaseAdapter(mContext,
 				refreshLabDbAndReturnLabs()));
@@ -100,6 +122,9 @@ public class MainActivity extends Activity {
 		return true;
 	}
 
+	/**
+	 * Trigger cases on menu item press
+	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
@@ -120,12 +145,19 @@ public class MainActivity extends Activity {
 		return true;
 	}
 
+	/**
+	 * Setup the activities action bar
+	 */
 	private void createActionBar() {
 		ActionBar actionBar = getActionBar();
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME
 				| ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_SHOW_CUSTOM);
 	}
 
+	/**
+	 * Load shared preferences file for filter settings and initialize class
+	 * variables
+	 */
 	private void loadPreferences() {
 		mFilterPreferences = new FilterPreferences(mContext);
 		mAllFiltersEnabled = mFilterPreferences.isAllFiltersEnabled();
@@ -139,6 +171,13 @@ public class MainActivity extends Activity {
 				mDemoTimeMinute, 0, 0);
 	}
 
+	/**
+	 * Nested AsyncTask class for refreshing labs in the background when the
+	 * refresh menu item has been clicked.
+	 * 
+	 * @author Alan Haverty
+	 *
+	 */
 	private class RefreshLabsAndListviewInBackground extends
 			AsyncTask<Context, Void, ArrayList<LabTime>> {
 		private Context mContext;
@@ -161,12 +200,20 @@ public class MainActivity extends Activity {
 		}
 	};
 
+	/**
+	 * @return An ArrayList of Labs, of type {@link LabTime}, grouped, filtered
+	 *         and arranged.
+	 */
 	private ArrayList<LabTime> refreshLabDbAndReturnLabs() {
 		createDaysLabData();
 		return getGroupedFilteredArrangedLabs();
 	}
 
-	private void createFilterDatabase() {
+	/**
+	 * Creates the Filter Database and inserts the locations taken from the
+	 * LabTimes Database.
+	 */
+	private void createAndPopulateFilterDatabase() {
 		List<String> locationNames = new ArrayList<String>();
 
 		FiltersDbManager dbFilters = new FiltersDbManager(mContext);
@@ -182,14 +229,18 @@ public class MainActivity extends Activity {
 		dbFilters.closeDB();
 	}
 
+	/**
+	 * Populates the Selected Labs Database with labs to be used for the main
+	 * activity list view and also the lab view activity
+	 */
 	private void createDaysLabData() {
 
 		DataPopulator.populate(mContext);
 
 		DateTime filteredTimestamp = DateTime.parse(mTestingDate, mFmt);
 
-		ArrayList<LabTime> initialLabTimes = LabInstancesCreator.createAllLabInstances(
-				mContext, filteredTimestamp);
+		ArrayList<LabTime> initialLabTimes = LabInstancesCreator
+				.createAllLabInstances(mContext, filteredTimestamp);
 
 		ArrayList<LabTime> labTimesGrouped = LabGrouper
 				.groupSimilarLabsByAvailability(initialLabTimes);
@@ -200,6 +251,11 @@ public class MainActivity extends Activity {
 		labsHelper.closeDb();
 	}
 
+	/**
+	 * 
+	 * @return An ArrayList of filtered, grouped Labs, of type {@link LabTime},
+	 *         taken from the Selected Labs Table
+	 */
 	private ArrayList<LabTime> getGroupedFilteredArrangedLabs() {
 		SelectedLabsHelper labsHelper = new SelectedLabsHelper(mContext);
 		ArrayList<LabTime> labTimesGroupFuture;
@@ -208,10 +264,9 @@ public class MainActivity extends Activity {
 			labTimesGroupFuture = labsHelper
 					.getLabsAfterTimeWithFilters(mTestCurrentDate);
 		} else {
-			labTimesGroupFuture = labsHelper
-					.getLabsAfterTime(mTestCurrentDate);
+			labTimesGroupFuture = labsHelper.getLabsAfterTime(mTestCurrentDate);
 		}
-		
+
 		labsHelper.closeDb();
 
 		ArrayList<LabTime> labTimes = LabsFilterer

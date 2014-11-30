@@ -1,30 +1,34 @@
 package com.ditlabavailability.model;
 
+/**
+ * Model class for a lab with a room, location and ID. Used primarily for
+ * setting up the initial lab databases without specific lab data like
+ * timestamps and availability
+ * 
+ * @author Alan Haverty
+ *
+ */
 public class LabDetails {
-	
+
 	int id;
 	String room;
 	String Location;
-	
-	// constructors
+
 	public LabDetails() {
 	}
-	
-	public LabDetails(String room, String location){
+
+	public LabDetails(String room, String location) {
 		this.room = room;
 		this.Location = location;
 	}
 
-	// getters	
 	public String getRoom() {
 		return room;
 	}
-	
+
 	public String getLocation() {
 		return Location;
 	}
-	
-	// setters
 
 	public void setRoom(String room) {
 		this.room = room;
@@ -33,7 +37,5 @@ public class LabDetails {
 	public void setLocation(String location) {
 		Location = location;
 	}
-	
-	
-	
+
 }

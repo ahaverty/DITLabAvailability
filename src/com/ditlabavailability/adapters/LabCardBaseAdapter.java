@@ -12,6 +12,12 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+/**
+ * The base adapter for the primary Lab Card rows.
+ * 
+ * @author Alan Haverty
+ *
+ */
 public class LabCardBaseAdapter extends BaseAdapter {
 
 	public ArrayList<LabTime> labArrayList;
@@ -37,6 +43,10 @@ public class LabCardBaseAdapter extends BaseAdapter {
 		return position;
 	}
 
+	/**
+	 * Sets up the list for the main activity, with logic for applying different
+	 * styles and views according to the labs position and availability status.
+	 */
 	public View getView(int position, View convertView, ViewGroup parent) {
 
 		this.mConvertView = convertView;
@@ -59,9 +69,11 @@ public class LabCardBaseAdapter extends BaseAdapter {
 		}
 
 		if (MatchesPrevious) {
-			mConvertView = Inflater
-					.inflate(R.layout.sub_lab_card, parent, false);
+			mConvertView = Inflater.inflate(R.layout.sub_lab_card, parent,
+					false);
+
 			mHolder = createHolder();
+
 			mConvertView.setTag(mHolder);
 
 		} else {
@@ -89,6 +101,10 @@ public class LabCardBaseAdapter extends BaseAdapter {
 		return mConvertView;
 	}
 
+	/**
+	 * @return A {@link ViewHolder} with all the possible TextViews for this
+	 *         BaseAdapter
+	 */
 	private ViewHolder createHolder() {
 		ViewHolder holder = new ViewHolder();
 
@@ -104,6 +120,14 @@ public class LabCardBaseAdapter extends BaseAdapter {
 		return holder;
 	}
 
+	/**
+	 * @see <a
+	 *      href="http://developer.android.com/training/improving-layouts/smooth-scrolling.html#ViewHolder">
+	 *      http://developer.android.com/training/improving-layouts/smooth-scrolling.html#ViewHolder</a>
+	 * @see
+	 * @author Alan Haverty
+	 *
+	 */
 	static class ViewHolder {
 		TextView labName;
 		TextView time;

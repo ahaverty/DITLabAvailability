@@ -19,6 +19,14 @@ import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TimePicker;
 
+/**
+ * Activity to allow the user to filter labs by location, demo/debug current
+ * time and favourites (Not yet fully implemented). Activity also deals with
+ * saving the shared preference file and making updated to the filter database
+ * 
+ * @author Alan Haverty
+ *
+ */
 public class FilterActivity extends Activity {
 
 	private Context mContext;
@@ -26,33 +34,33 @@ public class FilterActivity extends Activity {
 	OnClickListener checkBoxListener;
 
 	private FilterPreferences mFilterPreferences;
-	
-	boolean allFiltersEnabled;
-	boolean favouritesEnabled;
-	int demoTimeHour;
-	int demoTimeMinute;
+
+	private boolean mAllFiltersEnabled;
+	private boolean mFavouritesEnabled;
+	private int mDemoTimeHour;
+	private int mDemoTimeMinute;
 
 	private LinearLayout mRestOfFiltersWrapper;
 	private TimePicker mDemoTimePicker;
 
+	/**
+	 * Setup action bar and back button for returning to main activity, load
+	 * preferences, initialise the switches and the location checkbox, setup
+	 * demo time picker
+	 */
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.filter_view);
 		getActionBar().setDisplayHomeAsUpEnabled(true);
-		
+
 		mContext = getApplicationContext();
 
-		// Load Preferences
-		mFilterPreferences = new FilterPreferences(mContext);
-		allFiltersEnabled = mFilterPreferences.isAllFiltersEnabled();
-		favouritesEnabled = mFilterPreferences.isFavouritesEnabled();
-		demoTimeHour = mFilterPreferences.getDemoTimeHour();
-		demoTimeMinute = mFilterPreferences.getDemoTimeMinute();
+		loadPreferences();
 
 		mRestOfFiltersWrapper = (LinearLayout) findViewById(R.id.rest_filters_wrapper);
 		Switch filtersOnOffSwitch = (Switch) findViewById(R.id.filters_onoff_switch);
-		filtersOnOffSwitch.setChecked(allFiltersEnabled);
-		if (allFiltersEnabled == false) {
+		filtersOnOffSwitch.setChecked(mAllFiltersEnabled);
+		if (mAllFiltersEnabled == false) {
 			mRestOfFiltersWrapper.setVisibility(View.GONE);
 		}
 		filtersOnOffSwitch
@@ -66,7 +74,7 @@ public class FilterActivity extends Activity {
 							mRestOfFiltersWrapper.setVisibility(View.GONE);
 						}
 
-						allFiltersEnabled = isChecked;
+						mAllFiltersEnabled = isChecked;
 					}
 
 				});
@@ -74,22 +82,42 @@ public class FilterActivity extends Activity {
 		// TODO Remove demo TimePicker before release --------------
 		// TimePicker used for demo purposes only ------------------
 		mDemoTimePicker = (TimePicker) findViewById(R.id.demoTimePicker);
-		mDemoTimePicker.setCurrentHour(demoTimeHour);
-		mDemoTimePicker.setCurrentMinute(demoTimeMinute);
+		mDemoTimePicker.setCurrentHour(mDemoTimeMinute);
+		mDemoTimePicker.setCurrentMinute(mDemoTimeHour);
 		// TimePicker used for demo purposes only -----------------------
 
 		filterLinear = (LinearLayout) findViewById(R.id.location_selection);
-		createLocationCheckboxes();
+		createLocationCheckboxesUsingExistingLocations();
+		// TODO Setup favourites and implement favourite switch into project
 	}
 
+	/**
+	 * When Filter Activity loses focus, save the shared preference file before
+	 * returning to the main activity
+	 */
 	protected void onPause() {
 		super.onPause();
-		mFilterPreferences.setAllPreferences(allFiltersEnabled,
-				favouritesEnabled, mDemoTimePicker.getCurrentHour(),
+		mFilterPreferences.setAllPreferences(mAllFiltersEnabled,
+				mFavouritesEnabled, mDemoTimePicker.getCurrentHour(),
 				mDemoTimePicker.getCurrentMinute());
 	}
 
-	private void createLocationCheckboxes() {
+	/**
+	 * Load shared preferences file for filter settings and initialize class
+	 * variables
+	 */
+	private void loadPreferences() {
+		mFilterPreferences = new FilterPreferences(mContext);
+		mAllFiltersEnabled = mFilterPreferences.isAllFiltersEnabled();
+		mDemoTimeHour = mFilterPreferences.getDemoTimeHour();
+		mDemoTimeMinute = mFilterPreferences.getDemoTimeMinute();
+	}
+
+	/**
+	 * Get the location names from the existing local database and pass the
+	 * index, location and status to addCheckbox()
+	 */
+	private void createLocationCheckboxesUsingExistingLocations() {
 		List<String> locationNames = new ArrayList<String>();
 		LabTimesDbManager dbLabTimes = new LabTimesDbManager(mContext);
 		locationNames = dbLabTimes.getAllLocationNames();
@@ -104,6 +132,14 @@ public class FilterActivity extends Activity {
 		}
 	}
 
+	/**
+	 * Create the filter checkboxes and fill them with the data from the
+	 * supplied parameters. Setup the onClick listener for the checkboxes
+	 * 
+	 * @param number
+	 * @param label
+	 * @param status
+	 */
 	private void addCheckbox(int number, String label, boolean status) {
 		CheckBox checkBox = new CheckBox(this);
 		checkBox.setId(number);
@@ -120,6 +156,13 @@ public class FilterActivity extends Activity {
 		filterLinear.addView(checkBox);
 	}
 
+	/**
+	 * Update the location status of a location, in the filters location table,
+	 * using the supplied parameters: location and status
+	 * 
+	 * @param location
+	 * @param status
+	 */
 	private void updateLocationStatus(String location, boolean status) {
 		FiltersDbManager dbFilters = new FiltersDbManager(mContext);
 		dbFilters.updateLocationStatus(location, status);

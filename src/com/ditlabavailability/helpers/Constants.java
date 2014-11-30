@@ -3,6 +3,11 @@ package com.ditlabavailability.helpers;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+/**
+ * Stores all public static final variables for the project
+ * @author Alan Haverty
+ *
+ */
 final public class Constants {
 
 	public static final DateTimeFormatter FMT = DateTimeFormat

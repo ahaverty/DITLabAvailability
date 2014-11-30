@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import com.ditlabavailability.helpers.Constants;
 import com.ditlabavailability.model.LabDetails;
 import com.ditlabavailability.model.Reserved;
 
@@ -17,10 +17,14 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+/**
+ * Database Helper class for the 'Labs' and 'Reserved' tables in the LabTimes database.
+ * @author Alan Haverty
+ *
+ */
 public class LabTimesDbManager extends SQLiteOpenHelper {
 
-	DateTimeFormatter fmt = DateTimeFormat
-			.forPattern("YYYY-MM-dd HH:mm:ss.SSS");
+	private DateTimeFormatter mFmt = Constants.FMT;
 
 	// Logcat tag
 	private static final String LOG = "LabTimesDbManager";
@@ -40,9 +44,8 @@ public class LabTimesDbManager extends SQLiteOpenHelper {
 
 	// Table Create Statements
 	// LABS table create statement
-	private final String CREATE_TABLE_LABS = "CREATE TABLE "
-			+ TABLE_LABS + "(" + KEY_ROOM + " TEXT PRIMARY KEY, "
-			+ KEY_LOCATION + " TEXT" + ")";
+	private final String CREATE_TABLE_LABS = "CREATE TABLE " + TABLE_LABS + "("
+			+ KEY_ROOM + " TEXT PRIMARY KEY, " + KEY_LOCATION + " TEXT" + ")";
 
 	// TIMES table create statement
 	private final String CREATE_TABLE_RESERVED = "CREATE TABLE "
@@ -56,20 +59,16 @@ public class LabTimesDbManager extends SQLiteOpenHelper {
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-
 		// creating required tables
 		db.execSQL(CREATE_TABLE_LABS);
 		db.execSQL(CREATE_TABLE_RESERVED);
-
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		// on upgrade drop older tables
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_LABS);
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_RESERVED);
 
-		// create new tables
 		onCreate(db);
 	}
 
@@ -79,7 +78,10 @@ public class LabTimesDbManager extends SQLiteOpenHelper {
 	}
 
 	/**
-	 * Creating a lab
+	 * Inserts the supplied lab into the Labs Table.
+	 * 
+	 * @param lab
+	 * @return The row ID of the newly inserted row, or -1 if an error occurred
 	 */
 	public long createLab(LabDetails lab) {
 		SQLiteDatabase db = this.getWritableDatabase();
@@ -94,8 +96,18 @@ public class LabTimesDbManager extends SQLiteOpenHelper {
 		return lab_id;
 	}
 
+	public void closeDB() {
+		SQLiteDatabase db = this.getReadableDatabase();
+		if (db != null && db.isOpen())
+			db.close();
+	}
+
 	/**
-	 * get single lab by room name
+	 * Returns the lab from the table with the same room name as the String
+	 * provided.
+	 * 
+	 * @param roomName
+	 * @return The lab, of type {@link LabDetails}
 	 */
 	public LabDetails getLabByRoom(String roomName) {
 		SQLiteDatabase db = this.getReadableDatabase();
@@ -116,8 +128,8 @@ public class LabTimesDbManager extends SQLiteOpenHelper {
 	}
 
 	/**
-	 * getting all labs
-	 * */
+	 * @return All labs, of type {@link LabDetails}, from the Labs Table.
+	 */
 	public List<LabDetails> getAllLabs() {
 		List<LabDetails> labs = new ArrayList<LabDetails>();
 		String selectQuery = "SELECT * FROM " + TABLE_LABS;
@@ -141,8 +153,12 @@ public class LabTimesDbManager extends SQLiteOpenHelper {
 	}
 
 	/**
-	 * Updating a lab
-	 **/
+	 * Update the Labs Table by passing in a lab object, of type
+	 * {@link LabDetails}. The update uses the room as its where equals clause.
+	 * 
+	 * @param lab
+	 * @return The number of rows affected by the update.
+	 */
 	public int updateLab(LabDetails lab) {
 		SQLiteDatabase db = this.getWritableDatabase();
 
@@ -156,16 +172,26 @@ public class LabTimesDbManager extends SQLiteOpenHelper {
 	}
 
 	/**
-	 * Deleting a lab
+	 * Delete a lab from the Table Labs, where the room matches the lab_room
+	 * string provided.
+	 * 
+	 * @param lab_room
+	 * @return the number of rows affected if a whereClause is passed in, 0
+	 *         otherwise. To remove all rows and get a count pass "1" as the
+	 *         whereClause.
 	 */
-	public void deleteLab(String lab_room) {
+	public int deleteLab(String lab_room) {
 		SQLiteDatabase db = this.getWritableDatabase();
-		db.delete(TABLE_LABS, KEY_ROOM + " = ?",
+		return db.delete(TABLE_LABS, KEY_ROOM + " = ?",
 				new String[] { String.valueOf(lab_room) });
 	}
 
 	/**
-	 * Creating lab time
+	 * Inserts into the Table Reserved using the supplied reservation, of type
+	 * {@link Reserved}
+	 * 
+	 * @param reservation
+	 * @return The row ID of the newly inserted row, or -1 if an error occurred.
 	 */
 	public long createReservation(Reserved reservation) {
 		long reservation_id = -1;
@@ -187,8 +213,9 @@ public class LabTimesDbManager extends SQLiteOpenHelper {
 	}
 
 	/**
-	 * getting all lab reservations
-	 * */
+	 * @return A list of reservations, of type {@link Reserved}, from the Table
+	 *         Reserved.
+	 */
 	public List<Reserved> getAllReservations() {
 		List<Reserved> labReservations = new ArrayList<Reserved>();
 		String selectQuery = "SELECT  * FROM " + TABLE_RESERVED;
@@ -211,8 +238,11 @@ public class LabTimesDbManager extends SQLiteOpenHelper {
 	}
 
 	/**
-	 * getting all lab reservations by date
-	 * */
+	 * @param dateBegin
+	 * @return A list of reservations within a 24hr window of the supplied
+	 *         dateBegin {@link DateTime}, of type {@link Reserved}, from the
+	 *         Table Reserved.
+	 */
 	public List<Reserved> getReservationsByDate(DateTime dateBegin) {
 
 		DateTime dateEnd;
@@ -220,8 +250,8 @@ public class LabTimesDbManager extends SQLiteOpenHelper {
 
 		List<Reserved> labReservations = new ArrayList<Reserved>();
 		String selectQuery = "SELECT * FROM " + TABLE_RESERVED
-				+ " WHERE datetime >= Datetime('" + fmt.print(dateBegin)
-				+ "') AND datetime <= Datetime('" + fmt.print(dateEnd) + "')";
+				+ " WHERE datetime >= Datetime('" + mFmt.print(dateBegin)
+				+ "') AND datetime <= Datetime('" + mFmt.print(dateEnd) + "')";
 
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor c = db.rawQuery(selectQuery, null);
@@ -241,7 +271,11 @@ public class LabTimesDbManager extends SQLiteOpenHelper {
 	}
 
 	/**
-	 * Updating a lab reservation
+	 * Update the Reserved Table using the supplied reservation, of type
+	 * {@link Reserved}.
+	 * 
+	 * @param reservation
+	 * @return The number of rows effected
 	 */
 	public int updateReservations(Reserved reservation) {
 		SQLiteDatabase db = this.getWritableDatabase();
@@ -255,7 +289,10 @@ public class LabTimesDbManager extends SQLiteOpenHelper {
 	}
 
 	/**
-	 * Deleting a reservation
+	 * Delete from the Reserved Table, using the supplied lab room string as the
+	 * where equals clause.
+	 * 
+	 * @param lab_room
 	 */
 	public void deleteReservationsByRoom(String lab_room) {
 		SQLiteDatabase db = this.getWritableDatabase();
@@ -263,6 +300,9 @@ public class LabTimesDbManager extends SQLiteOpenHelper {
 				new String[] { String.valueOf(lab_room) });
 	}
 
+	/**
+	 * @return A distinct list of every location name that exists in the Lab Table.
+	 */
 	public List<String> getAllLocationNames() {
 		List<String> locationNames = new ArrayList<String>();
 		String selectQuery = "SELECT DISTINCT " + KEY_LOCATION + " FROM "
@@ -279,12 +319,4 @@ public class LabTimesDbManager extends SQLiteOpenHelper {
 
 		return locationNames;
 	}
-
-	// closing database
-	public void closeDB() {
-		SQLiteDatabase db = this.getReadableDatabase();
-		if (db != null && db.isOpen())
-			db.close();
-	}
-
 }

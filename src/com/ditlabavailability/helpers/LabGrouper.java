@@ -4,10 +4,19 @@ import java.util.ArrayList;
 
 import com.ditlabavailability.model.LabTime;
 
+/**
+ * Helper class that groups Lab ArrayLists by their room name and availability
+ * status.
+ * 
+ * @author Alan Haverty
+ *
+ */
 public class LabGrouper {
-	
+
 	/**
-	 * Groups lab hours that have same room name and availability status
+	 * Groups lab hours that have same room name and availability status,
+	 * Effectively generating a new Lab object with an 'until_time' attribute.
+	 * 
 	 * @param labTimeResults
 	 * @return labs grouped with new 'until_time' property
 	 */
