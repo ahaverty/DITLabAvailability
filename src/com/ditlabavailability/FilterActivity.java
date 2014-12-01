@@ -82,8 +82,8 @@ public class FilterActivity extends Activity {
 		// TODO Remove demo TimePicker before release --------------
 		// TimePicker used for demo purposes only ------------------
 		mDemoTimePicker = (TimePicker) findViewById(R.id.demoTimePicker);
-		mDemoTimePicker.setCurrentHour(mDemoTimeMinute);
-		mDemoTimePicker.setCurrentMinute(mDemoTimeHour);
+		mDemoTimePicker.setCurrentHour(mDemoTimeHour);
+		mDemoTimePicker.setCurrentMinute(mDemoTimeMinute);
 		// TimePicker used for demo purposes only -----------------------
 
 		filterLinear = (LinearLayout) findViewById(R.id.location_selection);
